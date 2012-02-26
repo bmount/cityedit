@@ -1,18 +1,3 @@
-<pre>
-      ___                                           
-     /\__\                                          
-    /:/  /        ___           ___           ___   
-   /:/  /        /\__\         /\__\         /|  |  
-  /:/  /  ___   /:/__/        /:/  /        |:|  |  
- /:/__/  /\__\ /::\  \       /:/__/         |:|  |  
- \:\  \ /:/  / \/\:\  \__   /::\  \       __|:|__|  
-  \:\  /:/  /   ~~\:\/\__\ /:/\:\  \     /::::\  \  
-   \:\/:/  /       \::/  / \/__\:\  \    ~~~~\:\  \ 
-    \::/  /        /:/  /       \:\__\        \:\__\
-     \/__/         \/__/         \/__/         \/__/
-
-</pre>
-
 app for cityedit based on Metakaolin (@natevw) and Simple Tiles (propublica/jeff larson)
 
 the way it works now is that there is a planning meeting where they hand out fliers with
@@ -55,17 +40,3 @@ Go to the directory `mapcouchapp`, then:
 
 If you have node couchapp installed globally from npm, change the name of the executable
 from the pip install to something like `/usr/local/bin/couchappy` and reinstall node couchahpp.
-
-<pre>
-      ___           ___                       ___     
-     /\  \         /\  \          ___        /\  \    
-    /::\  \       /::\  \        /\  \       \:\  \   
-   /:/\:\  \     /:/\:\  \       \:\  \       \:\  \  
-  /::\~\:\  \   /:/  \:\__\      /::\__\      /::\  \ 
- /:/\:\ \:\__\ /:/__/ \:|__|  __/:/\/__/     /:/\:\__\
- \:\~\:\ \/__/ \:\  \ /:/  / /\/:/  /       /:/  \/__/
-  \:\ \:\__\    \:\  /:/  /  \::/__/       /:/  /     
-   \:\ \/__/     \:\/:/  /    \:\__\       \/__/      
-    \:\__\        \::/__/      \/__/                  
-     \/__/         ~~                                 
-</pre>
