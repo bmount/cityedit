@@ -37,12 +37,13 @@
 </head>
 <body>
     <form id="doc_controls" action="{{app_url}}/_update/content/{{id}}" method="POST">
-        <a href="{{app_url}}/_list/summary/by_moddate">←</a>
+        <a href="{{app_url}}/_list/summary/by_moddate_cp">←</a>
         <!--<a href="{{app_url}}/_show/viewer/{{id}}">Cancel</a>-->
         <!--<a href="{{app_url}}/_show/files/{{id}}">Files...</a>-->
         <input name="title" placeholder="Document title" value="{{ title }}"></input>
         <button class="save" disabled>Save</button><br>
         <a href class="add">⫀ Add Something</a> (Like what? Like <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" target="_blank">this</a>.)
+        <a href class="add_design_element">add a street design element</a>
         <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
     </form>
     <div id="shape_controls">
@@ -56,31 +57,24 @@
     
     <script>
         var po = org.polymaps,
-            map = po.map().container(d3.select('#map').append("svg:svg").node());
+          map = po.map().container(d3.select('#map').append("svg:svg").node()),
+          h = window.location.hash
         map.add(po.interact());
         map.add(po.hash());
-        map.center({lat:37.7455, lon:-122.42203}).zoom(20);
+        map.add(po.grid());
+        map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
         map.zoomRange([20])
-        
+
         // TODO: properly attribute whichever layer is used
-        // if (window.location.href.indexOf('geodoc') == -1) map.add(po.image()
-        // if (1) 
         map.add(po.image()
           .url(po.url("http://{S}.sfgeo.org/cetiles/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
+          //.url(po.url("http://localhost:5984/zt3/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
             .hosts([1, 2, 3, 4])));
-        // .url(po.url("http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png")))
-        // else map.add(po.image()
-        // .url("../../../../tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png"))
-        /*else map.add(po.image()
-            .url(po.url("http://oatile{S}.mqcdn.com/naip"
-            + "/{Z}/{X}/{Y}.jpg")
-            .hosts([1, 2, 3, 4])));
-        */
-        
+
         var vector = po_metakaolin_viewer(),
             editor = po_metakaolin_editor();
         map.add(vector).add(editor);
-        
+
         d3.select(vector.container()).classed('viewer', true);
         vector.on('show', function (loadEvent) {
             loadEvent.features.forEach(function (f,i) {
@@ -95,10 +89,11 @@
                 }).classed('color' + (i % 3), true).classed('editing', f.data.geometry === editingGeometry);
             });
         });
-        
+
         var geoJsonEl = d3.select("#geojson_content").node(),
             featureCollection = (geoJsonEl.value) ? JSON.parse(geoJsonEl.value) : null;
-        function updateFeatures() {
+            function updateFeatures() {
+              var h = window.location.hash
             geoJsonEl.value = JSON.stringify(featureCollection);
             vector.features(featureCollection.features);
             d3.select('#doc_controls .save').property('disabled', false);
@@ -108,26 +103,33 @@
             updateFeatures();
         }
 
-        // set location of san jose/guerrero park
+        // default location is san jose ave/guerrero ave pavement-to-park project, San Francisco
 
-        map.center({lat:37.7455, lon:-122.42203}).zoom(20);
+        map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
         map.zoomRange([20])
-        
+
         if (featureCollection.features.length) {
             var bounds = d3.geo.bounds(featureCollection).map(function (c) { return {lon:c[0], lat:c[1]}; });
             vector.features(featureCollection.features);
             //map.extent(bounds).zoomBy(-0.25);
         }
+        
         /*    
         } else if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function (p) {
             map.center({lat:p.coords.latitude, lon:p.coords.longitude}).zoom(14);
           });
         */
-        
+
         d3.select('#doc_controls .add').on('click', function () {
             d3.event.preventDefault();
             addFeature();
         });
+
+        d3.select('#doc_controls .add_design_element').on('click', function (designFeature) {
+            d3.event.preventDefault();
+            addDesignPt();
+        });
+
         d3.select('input[name=title]').on('change', function () {
             d3.select('#doc_controls .save').property('disabled', false);
         });
@@ -140,6 +142,43 @@
             }
         }, false);
         
+        function addDesignFeature (designFeature) {
+            var geom = {type:"Polygon", coordinates:[[]]},
+                size = 0.00005125,
+                center = map.center();
+            geom.properties = {}
+            geom.properties.imageType = designFeature
+            geom.coordinates[0].push([center.lon - size, center.lat + size]);
+            geom.coordinates[0].push([center.lon + size, center.lat + size]);
+            geom.coordinates[0].push([center.lon + size, center.lat - size]);
+            geom.coordinates[0].push([center.lon - size, center.lat - size]);
+            geom.coordinates[0].push([center.lon - size, center.lat + size]);
+            if (0) {
+                geom.type = (1) ? "LineString" : "MultiPoint";
+                geom.coordinates = geom.coordinates[0];
+                geom.coordinates.pop();
+            } else if (1) {
+                geom = {type:"GeometryCollection", geometries:[geom]};
+            }
+            featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
+            updateFeatures();
+            editGeometry(geom);
+
+          }
+  
+        function addDesignPt (designFeature) {
+            var geom = {type:"Point", coordinates:[]},
+                size = 0.00005125,
+                center = map.center();
+            geom.properties = {}
+            geom.properties.imageType = designFeature
+            geom.coordinates = [center.lon, center.lat];
+            geom = {type:"GeometryCollection", geometries:[geom]};
+            featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
+            updateFeatures();
+            editGeometry(geom);
+        }
+
         function addFeature() {
             var geom = {type:"Polygon", coordinates:[[]]},
                 size = 0.00005125,
