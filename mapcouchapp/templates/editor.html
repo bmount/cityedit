@@ -154,11 +154,11 @@
             geom.coordinates = [center.lon, center.lat];
             geom = {type:"GeometryCollection", geometries:[geom]};
             featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
-            function showFeature (tile, proj) {
+            /*function showFeature (tile, proj) {
               proj = proj(tile);
               return;
-            }
-            map.add(po.layer(showFeature).tile(false));
+            }*/
+            //map.add(po.layer(showFeature).tile(false));
             updateFeatures();
             editGeometry(geom);
         }
