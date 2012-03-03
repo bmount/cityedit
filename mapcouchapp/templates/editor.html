@@ -18,8 +18,8 @@
     <script src="../_attachments/fermata.min.js"></script>
     <script src="../_attachments/polymaps.min.js"></script>
     <script src="../_attachments/polymaps.editor.js"></script>
-    <!-- /temporary -->
-    
+    -->
+
     <style>
         #map { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; }
         
@@ -35,6 +35,7 @@
         .viewer .editing { fill-opacity: 0.05; stroke-opacity: 0.1; }
     </style>
 </head>
+
 <body>
     <form id="doc_controls" action="{{app_url}}/_update/content/{{id}}" method="POST">
         <a href="{{app_url}}/_list/summary/by_moddate_cp">←</a>
@@ -52,9 +53,9 @@
         <button class="save" type="button">Done</button><br>
         <a href class="delete">∉ Remove shape</a>
     </div>
-    
+
     <div id="map"></div>
-    
+
     <script>
         var po = org.polymaps,
           map = po.map().container(d3.select('#map').append("svg:svg").node()),
@@ -67,8 +68,8 @@
 
         // TODO: properly attribute whichever layer is used
         map.add(po.image()
-          .url(po.url("http://{S}.sfgeo.org/cetiles/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
-          //.url(po.url("http://localhost:5984/zt3/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
+          .url(po.url("http://{S}.sfgeo.org/cetiles2/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
+          //.url(po.url("http://localhost:5984/zt6/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
             .hosts([1, 2, 3, 4])));
 
         var vector = po_metakaolin_viewer(),
@@ -94,9 +95,9 @@
             featureCollection = (geoJsonEl.value) ? JSON.parse(geoJsonEl.value) : null;
             function updateFeatures() {
               var h = window.location.hash
-            geoJsonEl.value = JSON.stringify(featureCollection);
-            vector.features(featureCollection.features);
-            d3.select('#doc_controls .save').property('disabled', false);
+              geoJsonEl.value = JSON.stringify(featureCollection);
+              vector.features(featureCollection.features);
+              d3.select('#doc_controls .save').property('disabled', false);
         }
         if (!featureCollection) {
             featureCollection = {type:"FeatureCollection", features:[]};
@@ -113,7 +114,7 @@
             vector.features(featureCollection.features);
             //map.extent(bounds).zoomBy(-0.25);
         }
-        
+
         /*    
         } else if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function (p) {
             map.center({lat:p.coords.latitude, lon:p.coords.longitude}).zoom(14);
@@ -127,7 +128,7 @@
 
         d3.select('#doc_controls .add_design_element').on('click', function (designFeature) {
             d3.event.preventDefault();
-            addDesignPt();
+            addDesignPt('sadtruck.png');
         });
 
         d3.select('input[name=title]').on('change', function () {
@@ -141,40 +142,23 @@
                 return 'You have unsaved changes that will be lost.';
             }
         }, false);
-        
-        function addDesignFeature (designFeature) {
-            var geom = {type:"Polygon", coordinates:[[]]},
-                size = 0.00005125,
-                center = map.center();
-            geom.properties = {}
-            geom.properties.imageType = designFeature
-            geom.coordinates[0].push([center.lon - size, center.lat + size]);
-            geom.coordinates[0].push([center.lon + size, center.lat + size]);
-            geom.coordinates[0].push([center.lon + size, center.lat - size]);
-            geom.coordinates[0].push([center.lon - size, center.lat - size]);
-            geom.coordinates[0].push([center.lon - size, center.lat + size]);
-            if (0) {
-                geom.type = (1) ? "LineString" : "MultiPoint";
-                geom.coordinates = geom.coordinates[0];
-                geom.coordinates.pop();
-            } else if (1) {
-                geom = {type:"GeometryCollection", geometries:[geom]};
-            }
-            featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
-            updateFeatures();
-            editGeometry(geom);
 
-          }
-  
         function addDesignPt (designFeature) {
+            // I touch no one and no one touches me
             var geom = {type:"Point", coordinates:[]},
                 size = 0.00005125,
                 center = map.center();
+            console.log(map.center());    
             geom.properties = {}
-            geom.properties.imageType = designFeature
+            geom.properties.imageName = designFeature;
             geom.coordinates = [center.lon, center.lat];
             geom = {type:"GeometryCollection", geometries:[geom]};
             featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
+            function showFeature (tile, proj) {
+              proj = proj(tile);
+              return;
+            }
+            map.add(po.layer(showFeature).tile(false));
             updateFeatures();
             editGeometry(geom);
         }
@@ -199,13 +183,14 @@
             updateFeatures();
             editGeometry(geom);
         }
-        
+
         var editingGeometry = null;
         function editGeometry(geom) {
             d3.select(document.body).classed('editing_shape', true);
             editor.geometry(editingGeometry = geom);
             vector.reshow();
         }
+
         function saveEdits() {
             var newGeometry = editor.geometry();
             Object.keys(newGeometry).forEach(function (key) {
@@ -216,6 +201,7 @@
             updateFeatures();
             finishEditing();
         }
+
         function deleteEdited() {
             var removedFeature = featureCollection.features.filter(function (f) { return f.geometry === editingGeometry; })[0];
             console.log(featureCollection.features.length);
