@@ -14,37 +14,46 @@ void tile_by_coords (int x, int y, int zoom)
   //return;
   //simplet_map_set_srs(map, "EPSG:900913");
   //simplet_map_set_srs(map, "EPSG:4326");
-  simplet_map_set_bgcolor(map, "#ffffff");
+  //simplet_map_set_bgcolor(map, "#ffffff");
+  simplet_map_set_bgcolor(map, "#d6dbe0");
   //simplet_map_set_bounds(map, -122.535, 37.64, -122.34, 37.833);
   //simplet_map_set_bounds(map, -585080.885134, 6849466.721081, 4161303.603672, 9587780.816356);
   //simplet_map_set_size(map, 1000, 1000);
   //simplet_layer_t *layer = simplet_map_add_layer(map, "/Users/bvm/Downloads/building_footprint/building_footprint.shp");
   //simplet_layer_t *layer = simplet_map_add_layer(map, "PG:dbname=bldgsf user=bvm host=/tmp");
 
-  // The city lots dataset from datasf.org:
   simplet_layer_t *layer = simplet_map_add_layer(map, "PG:dbname=citylots host=/tmp");
+  // D8D0A4
   simplet_query_t *query = simplet_layer_add_query(layer, "select * from ogrgeojson");
-  simplet_query_add_style(query, "stroke", "#a3e2fff6");
-  simplet_query_add_style(query, "fill", "#bd6b6b66");
+  simplet_query_add_style(query, "fill", "#d8d0a4");
+  simplet_query_add_style(query, "stroke", "#d8d0a4");
+  
+  //simplet_query_add_style(query, "stroke", "#a3e2fff6");
+  // green as per diagram trees in readme
+  //simplet_query_add_style(query, "stroke", "#c4dd9c99");
+  //simplet_query_add_style(query, "fill", "#c4dd9c");
+  //simplet_query_add_style(query, "fill", "#bd6b6b66");
   simplet_query_add_style(query, "line-join", "round");
   simplet_query_add_style(query, "weight", ".1");
 
-  // the building footprint dataset from datasf.org
   simplet_layer_t *layer2 = simplet_map_add_layer(map, "PG:dbname=bldgsf host=/tmp");
   simplet_query_t *query2 = simplet_layer_add_query(layer2, "select * from ogrgeojson");
   simplet_query_add_style(query2, "stroke", "#11111166");
-  simplet_query_add_style(query2, "fill", "#ffffffff");
+  simplet_query_add_style(query2, "fill", "#f5f0d0");
+  //simplet_query_add_style(query2, "fill", "#ffffffff");
+  // F5F0D0
   //simplet_query_add_style(query2, "fill", "#11111166");
   simplet_query_add_style(query2, "line-join", "round");
   simplet_query_add_style(query2, "weight", "2");
 
-  // Same as above
   simplet_layer_t *layer3 = simplet_map_add_layer(map, "PG:dbname=bldgsf host=/tmp");
   simplet_query_t *query3 = simplet_layer_add_query(layer3, "select * from ogrgeojson");
   //simplet_query_add_style(query3, "stroke", "#ffffffff");
   simplet_query_add_style(query2, "stroke", "#11111166");
+  //simplet_query_add_style(query2, "stroke", "#11111166");
   //simplet_query_add_style(query3, "fill", "#ffffffff");
-  simplet_query_add_style(query3, "fill", "#bd915a66");
+  simplet_query_add_style(query3, "fill", "#f5f0d0");
+  //simplet_query_add_style(query3, "fill", "#bd915a66");
   simplet_query_add_style(query3, "line-join", "round");
   simplet_query_add_style(query3, "weight", ".5");
 
