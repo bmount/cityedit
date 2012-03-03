@@ -17,7 +17,7 @@ cranks (of all stripes.) we also need to figure out what the good ideas are. lik
 
 or like my idea of putting a hexagonal fountain at the intersection of Mission and Cesar Chavez (which they left out above):
 
-![hexagonal intersection fountain](http://h.sfgeo.org/a300mphach/hexagonintersect/hexagonintersection.png)
+![hexagonal intersection fountain](http://h.sfgeo.org/a300mphach/hexagonintersect/hexagonintersection2.png)
 
 or, if you prefer, [draw something else here](http://cityedit.sfgeo.org/cityedit/_design/maps/_show/editor#20.00/37.74817/-122.41807). 
 
