@@ -10,6 +10,7 @@
     <script src="{{app_url}}/polymaps-couchbb.js"></script>
     <script src="{{app_url}}/polymaps.editor.js"></script>
     <script src="{{app_url}}/polymaps.viewer.js"></script>
+    <script src="{{app_url}}/fabric.all.min.js"></script>
     <!-- -->
     
     <!-- temporary: allow quicker local development
@@ -21,8 +22,8 @@
     -->
 
     <style>
-        #map { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; }
-        
+        #map { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; }
+        #fabrick { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
         #shape_controls, .editing_shape #doc_controls { display: none; }
         #doc_controls, .editing_shape #shape_controls { display: block; }
         
@@ -37,6 +38,30 @@
 </head>
 
 <body>
+  <div id="fabrick">
+    <canvas id="fabcanv" height=1000 width=1000></canvas>
+    <script>
+      /*
+    <canvas id='fabrick' width='1000' height='1000'></canvas>
+  */
+  </script>
+  </div>    
+  
+  <script> 
+
+    /*  (function(){
+        var mainScriptEl = document.getElementById('main');
+        if (!mainScriptEl) return;
+        var el = document.createElement('pre');
+        el.innerHTML = mainScriptEl.innerHTML;
+        el.lang = 'javascript';
+        el.className = 'prettyprint';
+        document.getElementById('bd-wrapper').appendChild(el);
+      })();
+    */    
+  
+  </script>
+
     <form id="doc_controls" action="{{app_url}}/_update/content/{{id}}" method="POST">
         <a href="{{app_url}}/_list/summary/by_moddate_cp">←</a>
         <!--<a href="{{app_url}}/_show/viewer/{{id}}">Cancel</a>-->
@@ -57,10 +82,52 @@
     <div id="map"></div>
 
     <script>
-        var po = org.polymaps,
+
+
+function fabrick () { 
+
+
+var canvz = function () {
+  var zunder = document.getElementById('map')
+  zunder.style.zIndex = -1
+}()
+var canvas = new fabric.Canvas('fabcanv');
+var zupper = document.getElementById('fabcanv')
+zupper.zIndex = 2
+fabric.loadSVGFromURL("{{app_url}}/designfeatures/tree.svg", function(objects) {
+
+  var obj = objects[0].scale(0.25);
+  canvas.centerObjectH(obj).centerObjectV(obj);
+  canvas.add(obj);
+
+  canvas.add(obj.clone().set({ left: 100, top: 100, angle: -15 }));
+  canvas.add(obj.clone().set({ left: 480, top: 100, angle: 15 }));
+  canvas.add(obj.clone().set({ left: 100, top: 400, angle: -15 }));
+  canvas.add(obj.clone().set({ left: 480, top: 400, angle: 15 }));
+/*
+  canvas.observe('mouse:move', function(e) {
+
+    var p = canvas.getPointer(e.memo.e);
+
+    canvas.forEachObject(function(obj) {
+      var distX = Math.abs(p.x - obj.left),
+          distY = Math.abs(p.y - obj.top),
+          dist = Math.round(Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2)));
+
+      //obj.setOpacity(1 / (dist / 20));
+    });
+*/
+    canvas.renderAll();
+  });
+
+}
+
+
+
+      var po = org.polymaps,
           map = po.map().container(d3.select('#map').append("svg:svg").node()),
           h = window.location.hash
-        map.add(po.interact());
+        //map.add(po.interact());
         map.add(po.hash());
         map.add(po.grid());
         map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
@@ -68,9 +135,9 @@
 
         // TODO: properly attribute whichever layer is used
         map.add(po.image()
-          .url(po.url("http://{S}.sfgeo.org/cetiles2/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
-          //.url(po.url("http://localhost:5984/zt6/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
-            .hosts([1, 2, 3, 4])));
+          //.url(po.url("http://{S}.sfgeo.org/cetiles2/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
+          .url(po.url("http://localhost:5984/zt6/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
+          //  .hosts([1, 2, 3, 4])));
 
         var vector = po_metakaolin_viewer(),
             editor = po_metakaolin_editor();
@@ -159,8 +226,9 @@
               return;
             }*/
             //map.add(po.layer(showFeature).tile(false));
-            updateFeatures();
-            editGeometry(geom);
+            //updateFeatures();
+            //editGeometry(geom);
+            fabrick()
         }
 
         function addFeature() {
