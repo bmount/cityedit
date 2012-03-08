@@ -19,7 +19,7 @@ cranks (of all stripes.) we also need to figure out what the good ideas are. lik
 
 or like my idea of putting a hexagonal fountain and 2 tonayenses at the intersection of Mission and Cesar Chavez (which they left out above):
 
-![hexagonal intersection fountain with tonayenses](http://h.sfgeo.org/a300mphach/withmorestuff/hexagonalfountan-w-tonayenses.png)
+![hexagonal intersection fountain with tonayenses](http://h.sfgeo.org/a300mphach/withmorestuff/hexagonalfountain-w-tonayenses.png)
 
 or, if you prefer, [draw something else here](http://cityedit.sfgeo.org/cityedit/_design/maps/_show/editor#20.00/37.74817/-122.41807). 
 
