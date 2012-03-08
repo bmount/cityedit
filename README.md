@@ -1,5 +1,7 @@
 app for cityedit based on Metakaolin (@natevw) and Simple Tiles (propublica/jeff larson)
 
+(see branch `canvassymbols` for some in-progress symbology stuff.)
+
 the way it works now is that there is a planning meeting where they hand out fliers with
 well-thought-out pictures like this:
 
@@ -15,11 +17,15 @@ good ideas to become popular enough that political leaders can be persuaded to i
 cranks (of all stripes.) we also need to figure out what the good ideas are. like this
 [amazing little park](http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/).
 
-or like my idea of putting a hexagonal fountain at the intersection of Mission and Cesar Chavez (which they left out above):
+or like my idea of putting a hexagonal fountain and 2 tonayenses at the intersection of Mission and Cesar Chavez (which they left out above):
 
-![hexagonal intersection fountain](http://h.sfgeo.org/a300mphach/hexagonintersect/hexagonintersection2.png)
+![hexagonal intersection fountain with tonayenses](http://h.sfgeo.org/a300mphach/withmorestuff/hexagonalfountan-w-tonayenses.png)
 
 or, if you prefer, [draw something else here](http://cityedit.sfgeo.org/cityedit/_design/maps/_show/editor#20.00/37.74817/-122.41807). 
+
+Try also the in-progress symbology editor [here](http://cityedit.sfgeo.org/cedev/_design/maps/_show/editor#20.00/37.74817/-122.41807), including support for Tonayenses in the San Jose Ave Park:
+
+![san jose guerrero park with tonayenses](http://h.sfgeo.org/a300mphach/withmorestuff/cityedit-withstuff.png)
 
 to install this application (and about 10 megabytes of map images), get a free database here:
 
