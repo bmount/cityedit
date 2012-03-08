@@ -23,7 +23,7 @@
 
     <style>
         #map { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; }
-        #fabrick { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
+        #featureEd { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
         #shape_controls, .editing_shape #doc_controls { display: none; }
         #doc_controls, .editing_shape #shape_controls { display: block; }
         
@@ -38,29 +38,9 @@
 </head>
 
 <body>
-  <div id="fabrick">
-    <canvas id="fabcanv" height=1000 width=1000></canvas>
-    <script>
-      /*
-    <canvas id='fabrick' width='1000' height='1000'></canvas>
-  */
-  </script>
-  </div>    
-  
-  <script> 
-
-    /*  (function(){
-        var mainScriptEl = document.getElementById('main');
-        if (!mainScriptEl) return;
-        var el = document.createElement('pre');
-        el.innerHTML = mainScriptEl.innerHTML;
-        el.lang = 'javascript';
-        el.className = 'prettyprint';
-        document.getElementById('bd-wrapper').appendChild(el);
-      })();
-    */    
-  
-  </script>
+  <div id="featureEd">
+    <canvas id="fabcanv"></canvas>
+</div>
 
     <form id="doc_controls" action="{{app_url}}/_update/content/{{id}}" method="POST">
         <a href="{{app_url}}/_list/summary/by_moddate_cp">←</a>
@@ -69,7 +49,10 @@
         <input name="title" placeholder="Document title" value="{{ title }}"></input>
         <button class="save" disabled>Save</button><br>
         <a href class="add">⫀ Add Something</a> (Like what? Like <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" target="_blank">this</a>.)
-        <a href class="add_design_element">add a street design element</a>
+        <a href class="add_design_element"></a>
+        <a href class="df-tree">add a tree</a>
+        <a href class="df-tacos">add tacos</a>
+        <a href class="done_design_element">reset</a>
         <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
     </form>
     <div id="shape_controls">
@@ -83,51 +66,58 @@
 
     <script>
 
+    var __ = function (id) {return document.getElementById(id)}
 
-function fabrick () { 
+    function useCanvasEditor () { 
+      (function () {
+        __('map').style.zIndex = -1
+      })()
+      var fabricCanvas = __('fabcanv')
+      console.log(fabricCanvas)
+      console.log(fabricCanvas.initialized)
+      if (!fabricCanvas.getAttribute("initialized")) {
+        fabricCanvas.setAttribute('height', map.size().y)
+        fabricCanvas.setAttribute('width', map.size().x)
+        fabricCanvas.setAttribute("initialized", "yes")
+        var canvas = window.canvas = new fabric.Canvas('fabcanv');
+      }
+      else {
+        var canvas = window.canvas
+      }
+      var symbolFeature = function (designFeature) {
+        if (designFeature.indexOf('png') != -1) {
+        //canvas.add(new fabric.Circle({ radius: 30, fill: '#f55', top: 100, left: 100 }));
+          fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
+            canvas.add(img)
+          })
+        }
+        if (designFeature.indexOf('jpg') != -1) {
+        //canvas.add(new fabric.Circle({ radius: 30, fill: '#f55', top: 100, left: 100 }));
+          fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
+            canvas.add(img)
+          })
+        }
 
-
-var canvz = function () {
-  var zunder = document.getElementById('map')
-  zunder.style.zIndex = -1
-}()
-var canvas = new fabric.Canvas('fabcanv');
-var zupper = document.getElementById('fabcanv')
-zupper.zIndex = 2
-fabric.loadSVGFromURL("{{app_url}}/designfeatures/tree.svg", function(objects) {
-
-  var obj = objects[0].scale(0.25);
-  canvas.centerObjectH(obj).centerObjectV(obj);
-  canvas.add(obj);
-
-  canvas.add(obj.clone().set({ left: 100, top: 100, angle: -15 }));
-  canvas.add(obj.clone().set({ left: 480, top: 100, angle: 15 }));
-  canvas.add(obj.clone().set({ left: 100, top: 400, angle: -15 }));
-  canvas.add(obj.clone().set({ left: 480, top: 400, angle: 15 }));
-/*
-  canvas.observe('mouse:move', function(e) {
-
-    var p = canvas.getPointer(e.memo.e);
-
-    canvas.forEachObject(function(obj) {
-      var distX = Math.abs(p.x - obj.left),
-          distY = Math.abs(p.y - obj.top),
-          dist = Math.round(Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2)));
-
-      //obj.setOpacity(1 / (dist / 20));
-    });
-*/
-    canvas.renderAll();
-  });
-
-}
-
-
+        //fabric.Image.fromURL('{{app_url}}/designfeatures/treeabove.png', function (img) {
+        //  canvas.add(img)
+        //})
+        if (designFeature.indexOf('svg') != -1) {
+          fabric.loadSVGFromURL("{{app_url}}/designfeatures/"+designFeature, function(objects) {
+            var pathgroup = new fabric.PathGroup(objects)
+            canvas.add(pathgroup)
+            //.centerObj(pathgroup)
+            updateComplexity()
+          })
+        }
+        canvas.renderAll()
+      }
+      return symbolFeature
+    }
 
       var po = org.polymaps,
           map = po.map().container(d3.select('#map').append("svg:svg").node()),
           h = window.location.hash
-        //map.add(po.interact());
+        map.add(po.interact());
         map.add(po.hash());
         map.add(po.grid());
         map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
@@ -193,9 +183,19 @@ fabric.loadSVGFromURL("{{app_url}}/designfeatures/tree.svg", function(objects) {
             addFeature();
         });
 
+        d3.select('#doc_controls .df-tree').on('click', function (designFeature) {
+            d3.event.preventDefault();
+            addDesignPt('treeabove.png');
+        });
+
+        d3.select('#doc_controls .df-tacos').on('click', function (designFeature) {
+            d3.event.preventDefault();
+            addDesignPt('tonayense.jpg');
+        });
+
         d3.select('#doc_controls .add_design_element').on('click', function (designFeature) {
             d3.event.preventDefault();
-            addDesignPt('sadtruck.png');
+            addDesignPt('treeabove.png');
         });
 
         d3.select('input[name=title]').on('change', function () {
@@ -228,7 +228,8 @@ fabric.loadSVGFromURL("{{app_url}}/designfeatures/tree.svg", function(objects) {
             //map.add(po.layer(showFeature).tile(false));
             //updateFeatures();
             //editGeometry(geom);
-            fabrick()
+            symbolEditor = useCanvasEditor()
+            symbolEditor(designFeature)
         }
 
         function addFeature() {
