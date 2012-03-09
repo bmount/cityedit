@@ -43,8 +43,9 @@
         <!--<a href="{{app_url}}/_show/files/{{id}}">Files...</a>-->
         <input name="title" placeholder="Document title" value="{{ title }}"></input>
         <button class="save" disabled>Save</button><br>
-        <a href class="add">⫀ Add Something</a> (Like what? Like <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" target="_blank">this</a>.)
-        <a href class="add_design_element">add a street design element</a>
+        <a href class="add">⫀ Add Something</a> (Like what? Like <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" target="_blank">this</a>.) | 
+        <a href class="add_design_element">add a point</a> | 
+        <a href class="add_existing_curbs">MOVE THE EXISTING CURBS</a> (double click on curb lines to edit)
         <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
     </form>
     <div id="shape_controls">
@@ -110,7 +111,7 @@
         map.zoomRange([20])
 
         if (featureCollection.features.length) {
-            var bounds = d3.geo.bounds(featureCollection).map(function (c) { return {lon:c[0], lat:c[1]}; });
+            //var bounds = d3.geo.bounds(featureCollection).map(function (c) { return {lon:c[0], lat:c[1]}; });
             vector.features(featureCollection.features);
             //map.extent(bounds).zoomBy(-0.25);
         }
@@ -129,6 +130,11 @@
         d3.select('#doc_controls .add_design_element').on('click', function (designFeature) {
             d3.event.preventDefault();
             addDesignPt('sadtruck.png');
+        });
+        
+        d3.select('#doc_controls .add_existing_curbs').on('click', function (designFeature) {
+            d3.event.preventDefault();
+            addCurbs();
         });
 
         d3.select('input[name=title]').on('change', function () {
@@ -162,6 +168,38 @@
             updateFeatures();
             editGeometry(geom);
         }
+
+        function addCurbs () { 
+          d3.json("/curblines/_design/tgs/_spatial/_list/geojson/geoms?bbox="+
+            map.extent()[0].lon + ',' +
+            map.extent()[0].lat + ',' +
+            map.extent()[1].lon + ',' +
+            map.extent()[1].lat, 
+            
+            function (rv) {
+              rv.features.forEach(function (curbline) {
+                featureCollection.features.push(curbline)
+                //console.log(curbline)
+                updateFeatures();
+                //editGeometry();
+              })
+            })
+          }
+          
+          /*        
+          
+          // some version of this with a styling load function is probably 
+          // good for a full svg background map
+          map.add(po.geoJson()
+              .url("/curblines/_design/tgs/_spatial/_list/geojson/geoms?bbox={G}")
+              //.url("/citylots/_design/tgs/_spatial/_list/geojson/geoms?bbox={G}")
+              .tile(true)
+              .on("load", function (e) {
+                // make like the city presentation document color scheme
+                return; 
+              }))
+          
+          */
 
         function addFeature() {
             var geom = {type:"Polygon", coordinates:[[]]},
