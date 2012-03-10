@@ -10,6 +10,7 @@
     <script src="{{app_url}}/polymaps-couchbb.js"></script>
     <script src="{{app_url}}/polymaps.editor.js"></script>
     <script src="{{app_url}}/polymaps.viewer.js"></script>
+    <script src="{{app_url}}/fabric.all.min.js"></script>
     <!-- -->
     
     <!-- temporary: allow quicker local development
@@ -21,8 +22,8 @@
     -->
 
     <style>
-        #map { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; }
-        
+        #map { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; }
+        #featureEd { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
         #shape_controls, .editing_shape #doc_controls { display: none; }
         #doc_controls, .editing_shape #shape_controls { display: block; }
         
@@ -37,6 +38,10 @@
 </head>
 
 <body>
+  <div id="featureEd">
+    <canvas id="fabcanv"></canvas>
+</div>
+
     <form id="doc_controls" action="{{app_url}}/_update/content/{{id}}" method="POST">
         <a href="{{app_url}}/_list/summary/by_moddate_cp">←</a>
         <!--<a href="{{app_url}}/_show/viewer/{{id}}">Cancel</a>-->
@@ -46,6 +51,9 @@
         <a href class="add">⫀ Add Something</a> (Like what? Like <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" target="_blank">this</a>.) | 
         <a href class="add_design_element">add a point</a> | 
         <a href class="add_existing_curbs">MOVE THE EXISTING CURBS</a> (double click on curb lines to edit)
+        <a href class="df-tree">add a tree</a>
+        <a href class="df-tacos">add tacos</a>
+        <a href class="done_design_element">reset</a>
         <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
     </form>
     <div id="shape_controls">
@@ -58,7 +66,56 @@
     <div id="map"></div>
 
     <script>
-        var po = org.polymaps,
+
+    var __ = function (id) {return document.getElementById(id)}
+
+    function useCanvasEditor () { 
+      (function () {
+        __('map').style.zIndex = -1
+      })()
+      var fabricCanvas = __('fabcanv')
+      console.log(fabricCanvas)
+      console.log(fabricCanvas.initialized)
+      if (!fabricCanvas.getAttribute("initialized")) {
+        fabricCanvas.setAttribute('height', map.size().y)
+        fabricCanvas.setAttribute('width', map.size().x)
+        fabricCanvas.setAttribute("initialized", "yes")
+        var canvas = window.canvas = new fabric.Canvas('fabcanv');
+      }
+      else {
+        var canvas = window.canvas
+      }
+      var symbolFeature = function (designFeature) {
+        if (designFeature.indexOf('png') != -1) {
+        //canvas.add(new fabric.Circle({ radius: 30, fill: '#f55', top: 100, left: 100 }));
+          fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
+            canvas.add(img)
+          })
+        }
+        if (designFeature.indexOf('jpg') != -1) {
+        //canvas.add(new fabric.Circle({ radius: 30, fill: '#f55', top: 100, left: 100 }));
+          fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
+            canvas.add(img)
+          })
+        }
+
+        //fabric.Image.fromURL('{{app_url}}/designfeatures/treeabove.png', function (img) {
+        //  canvas.add(img)
+        //})
+        if (designFeature.indexOf('svg') != -1) {
+          fabric.loadSVGFromURL("{{app_url}}/designfeatures/"+designFeature, function(objects) {
+            var pathgroup = new fabric.PathGroup(objects)
+            canvas.add(pathgroup)
+            //.centerObj(pathgroup)
+            updateComplexity()
+          })
+        }
+        canvas.renderAll()
+      }
+      return symbolFeature
+    }
+
+      var po = org.polymaps,
           map = po.map().container(d3.select('#map').append("svg:svg").node()),
           h = window.location.hash
         map.add(po.interact());
@@ -127,9 +184,19 @@
             addFeature();
         });
 
+        d3.select('#doc_controls .df-tree').on('click', function (designFeature) {
+            d3.event.preventDefault();
+            addDesignPt('treeabove.png');
+        });
+
+        d3.select('#doc_controls .df-tacos').on('click', function (designFeature) {
+            d3.event.preventDefault();
+            addDesignPt('tonayense.jpg');
+        });
+
         d3.select('#doc_controls .add_design_element').on('click', function (designFeature) {
             d3.event.preventDefault();
-            addDesignPt('sadtruck.png');
+            addDesignPt('treeabove.png');
         });
         
         d3.select('#doc_controls .add_existing_curbs').on('click', function (designFeature) {
@@ -165,8 +232,10 @@
               return;
             }*/
             //map.add(po.layer(showFeature).tile(false));
-            updateFeatures();
-            editGeometry(geom);
+            //updateFeatures();
+            //editGeometry(geom);
+            symbolEditor = useCanvasEditor()
+            symbolEditor(designFeature)
         }
 
         function addCurbs () { 
