@@ -1,16 +1,4 @@
-
-
-Try the canvas based symbol editor at branch canvassymbols or:
-
-http://h.sfgeo.org/cedev/_design/maps/_show/editor
-
-svg imagery by @chromakode see embedded cc license for reuse
-public domain clip art http://colouringbook.org/tag/colouringbook-org/page/89/
-
-
 app for cityedit based on Metakaolin (@natevw) and Simple Tiles (propublica/jeff larson)
-
-(see branch `canvassymbols` for some in-progress symbology stuff.)
 
 the way it works now is that there is a planning meeting where they hand out fliers with
 well-thought-out pictures like this:
@@ -20,20 +8,29 @@ well-thought-out pictures like this:
 but you can't watch the meeting, becuase it is not available on the internet channel. the 
 people who do go to the meeting are mostly cranky about the consequences of the ideas under 
 discussion as they relate to street parking. even if you could go, what would be left for 
-sharing and advocacy after the fact?
+sharing and advocacy after the fact? We need to figure out ways for good ideas to become 
+popular enough that political leaders can be persuaded to ignore the cranks (of all stripes.) 
+we also need to figure out what the good ideas are. like this [amazing little park](http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/).
 
-we need to move the urban planning process online, and we need to figure out ways for
-good ideas to become popular enough that political leaders can be persuaded to ignore the
-cranks (of all stripes.) we also need to figure out what the good ideas are. like this
-[amazing little park](http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/).
+Cityedit idea/implementation so far is:
 
-or like my idea of putting a hexagonal fountain and 2 tonayenses at the intersection of Mission and Cesar Chavez (which they left out above):
+Start with a street layout/ public right-of-way somewhere between GIS and architectural plans:
 
-![hexagonal intersection fountain with tonayenses](http://h.sfgeo.org/a300mphach/withmorestuff/hexagonalfountain-w-tonayenses.png)
+![mission cesar chavez](http://h.sfgeo.org/a300mphach/withmorestuff/start-cesar-mission.png)
+
+Optionally, load up the current street lines (curbs and medians)
+
+![show curbs](http://h.sfgeo.org:5984/a300mphach/withmorestuff/add-curbs.png)
+
+Change stuff! ie, propose a design to tighten a wide, fast turning radius:
+
+![tigten turn](http://h.sfgeo.org:5984/a300mphach/withmorestuff/tighten-turning-radius.png)
+
+Then add trees and taco trucks:
+
+![final bulb](http://h.sfgeo.org/a300mphach/withmorestuff/finalbulbtonayense.png)
 
 or, if you prefer, [draw something else here](http://cityedit.sfgeo.org/cityedit/_design/maps/_show/editor#20.00/37.74817/-122.41807). 
-
-Try also the in-progress symbology editor [here](http://cityedit.sfgeo.org/cedev/_design/maps/_show/editor#20.00/37.74817/-122.41807), including support for Tonayenses in the San Jose Ave Park:
 
 ![san jose guerrero park with tonayenses](http://h.sfgeo.org/a300mphach/withmorestuff/cityedit-withstuff.png)
 
