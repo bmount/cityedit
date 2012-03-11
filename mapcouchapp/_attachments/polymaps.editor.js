@@ -414,7 +414,10 @@ var po_metakaolin_editor = function () {
             return pt;
         }
         function _getLocation(e) {
+            console.log(e)
             var mouse = editor.map().mouse(e);
+            console.log(mouse)
+            console.log(editor.map().pointLocation(mouse))
             return editor.map().pointLocation(mouse);
         }
         function _dist(pos1, pos2) {
