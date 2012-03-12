@@ -239,12 +239,12 @@
         
         d3.select('#doc_controls .df-save-symbol').on('click', function (designFeature) {
           d3.event.preventDefault();
-          groupFeatureUpdate = {type:"FeatureCollection", geometries:[]}
+          groupFeatureUpdate = {type:"GeometryCollection", geometries:[]}
           console.log('save symbol editingSymbols')
           editingSymbols.forEach( function (df) {
               console.log(df)
               if (df === null) return; 
-              groupFeatureUpdate.geometries.push({type:"Feature", geometry:df})
+              groupFeatureUpdate.geometries.push(df)
               console.log('yes')
               console.log(featureCollection)
               featureCollection.features.push({type:"Feature", geometry:df})
@@ -308,9 +308,9 @@
             geom.properties = {}
             geom.properties.imageName = designFeature;
             //geom.coordinates = [center.lon, center.lat];
-            //geom = {type:"GeometryCollection", geometries:[geom]};
+            geominit = {type:"GeometryCollection", geometries:[]};
             //geom = {type:"Point", coordinates:[geom]};
-            //featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
+            featureCollection.features.push({type:"Feature", properties:null, geometry:geominit});
             /*function showFeature (tile, proj) {
               proj = proj(tile);
               return;
