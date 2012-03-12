@@ -53,7 +53,8 @@
         <a href class="df-tree">tree</a>
         <img href class="df-basketball" height="50" width="50" style='position:absolute;top:0px;right:50px;' src="{{app_url}}/designfeatures/stbasketball.jpg" />
         <a href class="df-tacos">tacos</a>
-        <a href class="df-remove">remove</a>
+        <a href class="df-remove">remove image</a>
+        <a href class="df-save-symbol">save image</a>
         <a href class="done_design_element">reset</a>
         <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
     </form>
@@ -85,30 +86,52 @@
         var canvas = window.canvas
       }
 
-      var symbolFeature = function (designFeature) {
+      var symbolFeature = function (designFeature, geom) {
+        var symIdx = editingSymbols.length
+        editingSymbols.push(geom)
+        console.log('fullgeom')
+        console.log(geom)
         if (designFeature.match(/png$|jpg$|jpeg$/)) {
           fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
             img.scaleToWidth(120)
             img.set({left:500, top:200})
             var outersomething = 9
+            var featureLocations = []
             canvas.observe({"mouse:up" : function (e) {
+                console.log('symidx')
+                console.log(symIdx)
+                console.log('event')
                 console.log(e)
-                console.log('maybe')
+                console.log('wholecan')
+                console.log(canvas)
                 // hardcoding 50 px top margin for the moment:
                 var upPt = map.pointLocation({x: e.memo.e.clientX, y: e.memo.e.clientY-50})
-                featureCollection.features.push({"type":"Feature", "geometry":{"type": "Point", "coordinates":[upPt.lon, upPt.lat]}})
-                updateFeatures()
-                console.log(map)
-                console.log(map.container())
-                console.log(e)
+                var evCoords = [upPt.lon, upPt.lat]
+                console.log('geometry')
+                console.log(geom)
+                console.log('active obj')
+                console.log(canvas.getActiveObject())
+                //geom.properties.symIdx = symIdx
+                candidateForDestruction = symIdx
+                editingSymbols[symIdx].coordinates = evCoords
+                console.log('editingSymbols')
+                console.log(editingSymbols)
+                //featureCollection.features.push({"type":"Feature", "geometry":{"type": "Point", "coordinates":[upPt.lon, upPt.lat]}})
+                //featureCollection.features.push({"type":"Feature", "geometry":{"type": "Point", "coordinates":[upPt.lon, upPt.lat]}})
+                //updateFeatures()
+                //console.log(map)
+                //console.log(map.container())
+                //console.log(e)
               }
             })
             canvas.add(img)
           })
         }
 
-    /*
-      SVG icons/symbology are not really working yet
+        /*
+
+        SVG icons/symbology are not really working yet, something in how
+        editor loads them, using canvas and rasters for all symbols atm
 
         if (designFeature.indexOf('jpg') != -1) {
         //canvas.add(new fabric.Circle({ radius: 30, fill: '#f55', top: 100, left: 100 }));
@@ -150,9 +173,9 @@
 
         // TODO: properly attribute whichever layer is used
         map.add(po.image()
-          .url(po.url("http://{S}.sfgeo.org/cetiles2/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
-          //.url(po.url("http://localhost:5984/zt6/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
-            .hosts([1, 2, 3, 4])));
+          //.url(po.url("http://{S}.sfgeo.org/cetiles2/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
+          .url(po.url("http://localhost:5984/zt6/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
+          //  .hosts([1, 2, 3, 4])));
 
         var vector = po_metakaolin_viewer(),
             editor = po_metakaolin_editor();
@@ -211,7 +234,25 @@
         d3.select('#doc_controls .df-remove').on('click', function (designFeature) {
             d3.event.preventDefault();
             canvas.remove(canvas.getActiveObject());
+            if (candidateForDestruction != -1) { editingSymbols[candidateForDestruction] = null }
         });
+        
+        d3.select('#doc_controls .df-save-symbol').on('click', function (designFeature) {
+          d3.event.preventDefault();
+          groupFeatureUpdate = {type:"FeatureCollection", geometries:[]}
+          console.log('save symbol editingSymbols')
+          editingSymbols.forEach( function (df) {
+              console.log(df)
+              if (df === null) return; 
+              groupFeatureUpdate.geometries.push({type:"Feature", geometry:df})
+              console.log('yes')
+              console.log(featureCollection)
+              featureCollection.features.push({type:"Feature", geometry:df})
+            })
+          //featureCollection.features.push(groupFeatureUpdate)
+          updateFeatures();
+          //finishEditing()
+        })
 
         d3.select('#doc_controls .df-tree').on('click', function (designFeature) {
             d3.event.preventDefault();
@@ -232,7 +273,7 @@
             d3.event.preventDefault();
             addDesignPt('basketballhoop.svg');
         });
-        
+
         d3.select('#doc_controls .df-svg-food').on('click', function (designFeature) {
             d3.event.preventDefault();
             addDesignPt('foodservice.svg');
@@ -256,17 +297,20 @@
             }
         }, false);
 
+        var editingSymbols = []
+        var candidateForDestruction = -1
+
         function addDesignPt (designFeature) {
             // I touch no one and no one touches me
             var geom = {type:"Point", coordinates:[]},
-                size = 0.00005125,
                 center = map.center();
-            console.log(map.center());    
+            //console.log(map.center());    
             geom.properties = {}
             geom.properties.imageName = designFeature;
-            geom.coordinates = [center.lon, center.lat];
-            geom = {type:"GeometryCollection", geometries:[geom]};
-            featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
+            //geom.coordinates = [center.lon, center.lat];
+            //geom = {type:"GeometryCollection", geometries:[geom]};
+            //geom = {type:"Point", coordinates:[geom]};
+            //featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
             /*function showFeature (tile, proj) {
               proj = proj(tile);
               return;
@@ -274,8 +318,8 @@
             //map.add(po.layer(showFeature).tile(false));
             //updateFeatures();
             //editGeometry(geom);
-            symbolEditor = useCanvasEditor()
-            symbolEditor(designFeature)
+            symbolEditor = useCanvasEditor(editingSymbols)
+            symbolEditor(designFeature, geom)
         }
 
         function addCurbs () { 
@@ -290,7 +334,6 @@
                 featureCollection.features.push(curbline)
                 //console.log(curbline)
                 updateFeatures();
-                //editGeometry();
               })
             })
           }
@@ -328,6 +371,7 @@
             }
             featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
             updateFeatures();
+            console.log(featureCollection)
             editGeometry(geom);
         }
 
