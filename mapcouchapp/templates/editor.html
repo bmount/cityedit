@@ -1,9 +1,10 @@
 <!doctype html>
+
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Metakaolin — Edit "{{ title }}"</title>
-    <!-- -->
+    <title>cityedit "{{ title }}"</title>
+
     <script src="{{app_url}}/d3.min.js"></script>
     <script src="{{app_url}}/d3.geo.min.js"></script>
     <script src="{{app_url}}/fermata.min.js"></script>
@@ -11,420 +12,314 @@
     <script src="{{app_url}}/polymaps.editor.js"></script>
     <script src="{{app_url}}/polymaps.viewer.js"></script>
     <script src="{{app_url}}/fabric.all.min.js"></script>
-    <!-- -->
-    
-    <!-- temporary: allow quicker local development
-    <script src="../_attachments/d3.min.js"></script>
-    <script src="../_attachments/d3.geo.min.js"></script>
-    <script src="../_attachments/fermata.min.js"></script>
-    <script src="../_attachments/polymaps.min.js"></script>
-    <script src="../_attachments/polymaps.editor.js"></script>
-    -->
 
-    <style>
-        #map { position: absolute; top: 50px; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; }
-        #featureEd { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
-        #shape_controls, .editing_shape #doc_controls { display: none; }
-        #doc_controls, .editing_shape #shape_controls { display: block; }
-        
-        .viewer { fill: grey; fill-opacity: 0.5; stroke: black; }
-        .viewer polyline { fill: none !important; stroke-width: 3px; }
-        .viewer .hover { fill-opacity: 0.25; stroke-opacity: 0.75; }
-        .viewer .color0 { fill: red; stroke: red; }
-        .viewer .color1 { fill: green; stroke: green; }
-        .viewer .color2 { fill: blue; stroke: blue; }
-        .viewer .editing { fill-opacity: 0.05; stroke-opacity: 0.1; }
-    </style>
+  <style>
+    #map { position: absolute; top: 50px; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; }
+    #canvfeature { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
+    #shape_controls, .editing_shape #doc_controls { display: none; }
+    #doc_controls, .editing_shape #shape_controls { display: block; }
+    
+    .viewer { fill: grey; fill-opacity: 0.5; stroke: black; }
+    .viewer polyline { fill: none !important; stroke-width: 3px; }
+    .viewer .hover { fill-opacity: 0.25; stroke-opacity: 0.75; }
+    .viewer .color0 { fill: red; stroke: red; }
+    .viewer .color1 { fill: green; stroke: green; }
+    .viewer .color2 { fill: blue; stroke: blue; }
+    .viewer .editing { fill-opacity: 0.05; stroke-opacity: 0.1; }
+  </style>
+  
 </head>
 
 <body>
-  <div id="featureEd">
+  <div id="canvfeature">
     <canvas id="fabcanv"></canvas>
-</div>
+  </div>
 
-    <form id="doc_controls" action="{{app_url}}/_update/content/{{id}}" method="POST">
-        <a href="{{app_url}}/_list/summary/by_moddate_cp">←</a>
-        <!--<a href="{{app_url}}/_show/viewer/{{id}}">Cancel</a>-->
-        <!--<a href="{{app_url}}/_show/files/{{id}}">Files...</a>-->
-        <input name="title" placeholder="Document title" value="{{ title }}"></input>
-        <button class="save" disabled>Save</button><br>
-        <a href class="add">⫀ Add Something</a> (Like what? Like <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" target="_blank">this</a>.) | 
-        <a href class="add_existing_curbs">MOVE THE CURBS</a> (double click to edit)
-        <a href class="df-tree">tree</a>
-        <img href class="df-basketball" height="50" width="50" style='position:absolute;top:0px;right:50px;' src="{{app_url}}/designfeatures/stbasketball.jpg" />
-        <a href class="df-tacos">tacos</a>
-        <a href class="df-remove">remove image</a>
-        <a href class="df-save-symbol">save image</a>
-        <a href class="done_design_element">reset</a>
-        <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
-    </form>
-    <div id="shape_controls">
-        <a href class="cancel">← Cancel</a>
-        <!--<a href>Fields...</a>-->
-        <button class="save" type="button">Done</button><br>
-        <a href class="delete">∉ Remove shape</a>
-    </div>
+<form id="doc_controls" action="{{app_url}}/_update/content/{{id}}" method="POST">
+    <a href="{{app_url}}/_list/summary/by_moddate_cp">←</a>
+    <input name="title" placeholder="Document title" value="{{ title }}"></input>
+    <button class="save" disabled>Save</button><br>
+    <a href class="add">⫀ Add Something</a> (Like what? Like 
+      <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" 
+        target="_blank">this</a>.) | 
+    <a href class="add_existing_curbs">MOVE THE CURBS</a> (double click to edit)
+    <a href class="df-tree">tree</a>
+    <img href class="df-basketball" height="50" width="50" 
+        style='position:absolute;top:0px;right:50px;' 
+        src="{{app_url}}/designfeatures/stbasketball.jpg" />    
+    <a href class="df-tacos">tacos</a>
+    <a href class="df-remove">remove image</a>
+    <a href class="df-save-symbol">save image</a>
+    <a href class="done_design_element">reset</a>
+    <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
+</form>
+    
+  <div id="shape_controls">
+    <a href class="cancel">← Cancel</a>
+    <!--<a href>Fields...</a>-->
+    <button class="save" type="button">Done</button><br>
+    <a href class="delete">∉ Remove shape</a>
+  </div>
 
-    <div id="map"></div>
+  <div id="map"></div>
 
-    <script>
+  <script>
 
-    var __ = function (id) {return document.getElementById(id)}
+  var __ = function (id) {return document.getElementById(id)}
 
-    function useCanvasEditor () { 
-      (function () {
-        __('map').style.zIndex = -1
-      })()
-      var fabricCanvas = __('fabcanv')
-      if (!fabricCanvas.getAttribute("initialized")) {
-        fabricCanvas.setAttribute('height', map.size().y)
-        fabricCanvas.setAttribute('width', map.size().x)
-        fabricCanvas.setAttribute("initialized", "yes")
-        var canvas = window.canvas = new fabric.Canvas('fabcanv');
+  var po = org.polymaps,
+      map = po.map().container(d3.select('#map').append("svg:svg").node()),
+      h = window.location.hash
+    map.add(po.interact());
+    map.add(po.hash());
+    map.add(po.grid());
+    map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
+    map.zoomRange([20])
+
+    // TODO: properly attribute whichever layer is used
+    // if you're using tiles replicated from this app, attribution is optional
+    map.add(po.image()
+      .url(po.url("http://{S}.sfgeo.org/cetiles2/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
+      //.url(po.url("http://localhost:5984/zt6/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
+        .hosts([1, 2, 3, 4])));
+
+    var vector = po_metakaolin_viewer(),
+      editor = po_metakaolin_editor();
+    map.add(vector).add(editor);
+
+      d3.select(vector.container()).classed('viewer', true);
+      vector.on('show', function (loadEvent) {
+          loadEvent.features.forEach(function (f,i) {
+              d3.select(f.element).on("dblclick", function () {
+                  d3.event.stopPropagation();
+                  d3.event.preventDefault();
+                  editGeometry(f.data.geometry);
+              }).on("mouseover", function () {
+                  d3.select(this).classed('hover', true);
+              }).on("mouseout", function () {
+                  d3.select(this).classed('hover', false);
+              }).classed('color' + (i % 3), true).classed('editing', f.data.geometry === editingGeometry);
+          });
+      });
+
+      var geoJsonEl = d3.select("#geojson_content").node(),
+          featureCollection = (geoJsonEl.value) ? JSON.parse(geoJsonEl.value) : null;
+          function updateFeatures() {
+            var h = window.location.hash
+            geoJsonEl.value = JSON.stringify(featureCollection);
+            vector.features(featureCollection.features);
+            d3.select('#doc_controls .save').property('disabled', false);
       }
-      else {
-        var canvas = window.canvas
+      if (!featureCollection) {
+          featureCollection = {type:"FeatureCollection", features:[]};
+          updateFeatures();
       }
 
-      var symbolFeature = function (designFeature, geom) {
-        var symIdx = editingSymbols.length
-        editingSymbols.push(geom)
-        console.log('fullgeom')
-        console.log(geom)
-        if (designFeature.match(/png$|jpg$|jpeg$/)) {
-          fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
-            img.scaleToWidth(120)
-            img.set({left:500, top:200})
-            var outersomething = 9
-            var featureLocations = []
-            canvas.observe({"mouse:up" : function (e) {
-                console.log('symidx')
-                console.log(symIdx)
-                console.log('event')
-                console.log(e)
-                console.log('wholecan')
-                console.log(canvas)
-                // hardcoding 50 px top margin for the moment:
-                var upPt = map.pointLocation({x: e.memo.e.clientX, y: e.memo.e.clientY-50})
-                var evCoords = [upPt.lon, upPt.lat]
-                console.log('geometry')
-                console.log(geom)
-                console.log('active obj')
-                console.log(canvas.getActiveObject())
-                //geom.properties.symIdx = symIdx
-                candidateForDestruction = symIdx
-                editingSymbols[symIdx].coordinates = evCoords
-                console.log('editingSymbols')
-                console.log(editingSymbols)
-                //featureCollection.features.push({"type":"Feature", "geometry":{"type": "Point", "coordinates":[upPt.lon, upPt.lat]}})
-                //featureCollection.features.push({"type":"Feature", "geometry":{"type": "Point", "coordinates":[upPt.lon, upPt.lat]}})
-                //updateFeatures()
-                //console.log(map)
-                //console.log(map.container())
-                //console.log(e)
-              }
+      // default location is san jose ave/guerrero ave pavement-to-park project, San Francisco
+      map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
+      map.zoomRange([20])
+
+      if (featureCollection.features.length) {
+          //var bounds = d3.geo.bounds(featureCollection).map(function (c) { return {lon:c[0], lat:c[1]}; });
+          vector.features(featureCollection.features);
+          //map.extent(bounds).zoomBy(-0.25);
+      }
+
+      d3.select('#doc_controls .add').on('click', function () {
+          d3.event.preventDefault();
+          addFeature();
+      });
+      
+      d3.select('#doc_controls .df-remove').on('click', function (designFeature) {
+          d3.event.preventDefault();
+          canvas.remove(canvas.getActiveObject());
+      });
+      
+      d3.select('#doc_controls .df-save-symbol').on('click', function () {
+        d3.event.preventDefault();
+        groupFeatureUpdate = {type:"FeatureCollection", features:[]}
+        if (!editingSymbol) return;
+        featureCollection.features.push({type:"FeatureCollection", features:[editingSymbol]})
+        updateFeatures();
+      })
+
+      d3.select('#doc_controls .df-tree').on('click', function (designFeature) {
+          d3.event.preventDefault();
+          addDesignPt('treeabove.png');
+      });
+
+      d3.select('#doc_controls .df-tacos').on('click', function (designFeature) {
+          d3.event.preventDefault();
+          addDesignPt('tonayense.jpg');
+      });
+
+      d3.select('#doc_controls .df-basketball').on('click', function (designFeature) {
+          d3.event.preventDefault();
+          addDesignPt('stbasketball.jpg');
+      });
+      
+      d3.select('#doc_controls .add_existing_curbs').on('click', function (designFeature) {
+          d3.event.preventDefault();
+          addCurbs();
+      });
+      
+      d3.select('input[name=title]').on('change', function () {
+          d3.select('#doc_controls .save').property('disabled', false);
+      });
+
+      d3.select('#doc_controls').on('submit', function () {
+          d3.select('#doc_controls .save').property('disabled', true);
+      });
+
+      window.addEventListener('beforeunload', function () {
+          if (d3.select('#doc_controls .save').property('disabled') === false) {
+              return 'You have unsaved changes that will be lost.';
+          }
+      }, false);
+
+      var editingSymbol = null
+
+      function addDesignPt (designFeature) {
+          // I touch no one and no one touches me
+          var geom = {type:"Feature", "geometry": {type:"Point", coordinates:[]}},
+              center = map.center();
+          geom.properties = {}
+          geom.properties.imageName = designFeature;
+
+          symbolEditor = useCanvasEditor()
+          symbolEditor(designFeature, geom)
+      }
+
+      function addCurbs () { 
+        d3.json("/curblines/_design/tgs/_spatial/_list/geojson/geoms?bbox="+
+          map.extent()[0].lon + ',' +
+          map.extent()[0].lat + ',' +
+          map.extent()[1].lon + ',' +
+          map.extent()[1].lat, 
+          
+          function (rv) {
+            rv.features.forEach(function (curbline) {
+              featureCollection.features.push(curbline)
+              updateFeatures();
             })
-            canvas.add(img)
           })
-        }
-
-        /*
-
-        SVG icons/symbology are not really working yet, something in how
-        editor loads them, using canvas and rasters for all symbols atm
-
-        if (designFeature.indexOf('jpg') != -1) {
-        //canvas.add(new fabric.Circle({ radius: 30, fill: '#f55', top: 100, left: 100 }));
-          fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
-            img.dfid = 9
-            canvas.add(img)
-            canvas.observe("mouse:up")
-          })
-        }
-        if (designFeature.indexOf('svg') != -1) {
-          fabric.loadSVGFromURL("{{app_url}}/designfeatures/"+designFeature, function(objects) {
-            var paths = new fabric.PathGroup(objects)
-            paths.set({left:100, top:199})
-            //canvas.add(objects)
-            paths.scaleToWidth(200).setCoords()
-            canvas.add(paths)
-            canvas.calcOffset()
-            //.centerObj(pathgroup)
-            canvas.renderAll()
-          })
-        }
-
-        */
-        canvas.renderAll()
       }
-      return symbolFeature
+    
+  function useCanvasEditor () { 
+    (function () {
+      __('map').style.zIndex = -1
+    })()
+    var fabricCanvas = __('fabcanv')
+    if (!fabricCanvas.getAttribute("initialized")) {
+      fabricCanvas.setAttribute('height', map.size().y)
+      fabricCanvas.setAttribute('width', map.size().x)
+      fabricCanvas.setAttribute("initialized", "yes")
+      var canvas = window.canvas = new fabric.Canvas('fabcanv');
+    }
+    else {
+      var canvas = window.canvas
     }
 
-   // function resumeVectorEditor () {}
-
-      var po = org.polymaps,
-          map = po.map().container(d3.select('#map').append("svg:svg").node()),
-          h = window.location.hash
-        map.add(po.interact());
-        map.add(po.hash());
-        map.add(po.grid());
-        map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
-        map.zoomRange([20])
-
-        // TODO: properly attribute whichever layer is used
-        map.add(po.image()
-          //.url(po.url("http://{S}.sfgeo.org/cetiles2/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
-          .url(po.url("http://localhost:5984/zt6/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
-          //  .hosts([1, 2, 3, 4])));
-
-        var vector = po_metakaolin_viewer(),
-            editor = po_metakaolin_editor();
-        map.add(vector).add(editor);
-
-        d3.select(vector.container()).classed('viewer', true);
-        vector.on('show', function (loadEvent) {
-            loadEvent.features.forEach(function (f,i) {
-                d3.select(f.element).on("dblclick", function () {
-                    d3.event.stopPropagation();
-                    d3.event.preventDefault();
-                    editGeometry(f.data.geometry);
-                }).on("mouseover", function () {
-                    d3.select(this).classed('hover', true);
-                }).on("mouseout", function () {
-                    d3.select(this).classed('hover', false);
-                }).classed('color' + (i % 3), true).classed('editing', f.data.geometry === editingGeometry);
-            });
-        });
-
-        var geoJsonEl = d3.select("#geojson_content").node(),
-            featureCollection = (geoJsonEl.value) ? JSON.parse(geoJsonEl.value) : null;
-            function updateFeatures() {
-              var h = window.location.hash
-              geoJsonEl.value = JSON.stringify(featureCollection);
-              vector.features(featureCollection.features);
-              d3.select('#doc_controls .save').property('disabled', false);
-        }
-        if (!featureCollection) {
-            featureCollection = {type:"FeatureCollection", features:[]};
-            updateFeatures();
-        }
-
-        // default location is san jose ave/guerrero ave pavement-to-park project, San Francisco
-
-        map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
-        map.zoomRange([20])
-
-        if (featureCollection.features.length) {
-            //var bounds = d3.geo.bounds(featureCollection).map(function (c) { return {lon:c[0], lat:c[1]}; });
-            vector.features(featureCollection.features);
-            //map.extent(bounds).zoomBy(-0.25);
-        }
-
-        /*    
-        } else if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function (p) {
-            map.center({lat:p.coords.latitude, lon:p.coords.longitude}).zoom(14);
-          });
-        */
-
-        d3.select('#doc_controls .add').on('click', function () {
-            d3.event.preventDefault();
-            addFeature();
-        });
-        
-        d3.select('#doc_controls .df-remove').on('click', function (designFeature) {
-            d3.event.preventDefault();
-            canvas.remove(canvas.getActiveObject());
-            if (candidateForDestruction != -1) { editingSymbols[candidateForDestruction] = null }
-        });
-        
-        d3.select('#doc_controls .df-save-symbol').on('click', function (designFeature) {
-          d3.event.preventDefault();
-          groupFeatureUpdate = {type:"FeatureCollection", features:[]}
-          console.log('save symbol editingSymbols')
-          editingSymbols.forEach( function (df) {
-              console.log('df')
-              console.log(df)
-              if (df === null) return;
-              delete df.properties 
-              //groupFeatureUpdate.features.push({type:"Feature", geometry:df})
-              groupFeatureUpdate.features.push({type:"Feature", geometry:df})
-              //console.log(featureCollection)
-              //featureCollection.features.push({type:"Feature", geometry:df})
-            })
-            console.log('groupFeatureUpdate')
-            console.log(groupFeatureUpdate)
-          groupFeatureUpdate.features.forEach(function (lpt) {
-            featureCollection.features.push(lpt)
+    var symbolFeature = function (designFeature, geom) {
+      editingSymbol = geom
+      console.log('fullgeom')
+      console.log(geom)
+      if (designFeature.match(/png$|jpg$|jpeg$/)) {
+        fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
+          d3.select(document.body).classed('editing_shape', true);
+          img.scaleToWidth(120)
+          img.set({left:500, top:200})
+          canvas.observe({"mouse:up" : function (e) {
+            // hardcoding 50 px top margin for the moment:
+            var upPt = map.pointLocation({x: e.memo.e.clientX, y: e.memo.e.clientY-50})
+            editingSymbol.geometry.coordinates = [upPt.lon, upPt.lat]
+            }
           })
-          //finishEditing()
-            updateFeatures();
+          canvas.add(img)
         })
+      }
+      canvas.renderAll()
+    }
+    return symbolFeature
+  }
 
-        d3.select('#doc_controls .df-tree').on('click', function (designFeature) {
-            d3.event.preventDefault();
-            addDesignPt('treeabove.png');
-        });
-
-        d3.select('#doc_controls .df-tacos').on('click', function (designFeature) {
-            d3.event.preventDefault();
-            addDesignPt('tonayense.jpg');
-        });
-
-        d3.select('#doc_controls .df-basketball').on('click', function (designFeature) {
-            d3.event.preventDefault();
-            addDesignPt('stbasketball.jpg');
-        });
-        
-        d3.select('#doc_controls .df-svg-basketball').on('click', function (designFeature) {
-            d3.event.preventDefault();
-            addDesignPt('basketballhoop.svg');
-        });
-
-        d3.select('#doc_controls .df-svg-food').on('click', function (designFeature) {
-            d3.event.preventDefault();
-            addDesignPt('foodservice.svg');
-        });
-
-        d3.select('#doc_controls .add_existing_curbs').on('click', function (designFeature) {
-            d3.event.preventDefault();
-            addCurbs();
-        });
-        
-
-        d3.select('input[name=title]').on('change', function () {
-            d3.select('#doc_controls .save').property('disabled', false);
-        });
-        d3.select('#doc_controls').on('submit', function () {
-            d3.select('#doc_controls .save').property('disabled', true);
-        });
-        window.addEventListener('beforeunload', function () {
-            if (d3.select('#doc_controls .save').property('disabled') === false) {
-                return 'You have unsaved changes that will be lost.';
-            }
-        }, false);
-
-        var editingSymbols = []
-        var candidateForDestruction = -1
-
-        function addDesignPt (designFeature) {
-            // I touch no one and no one touches me
-            var geom = {type:"Point", coordinates:[]},
-                center = map.center();
-            //console.log(map.center());    
-            geom.properties = {}
-            geom.properties.imageName = designFeature;
-            //geom.coordinates = [center.lon, center.lat];
-            geominit = {type:"GeometryCollection", geometries:[]};
-            //geom = {type:"Point", coordinates:[geom]};
-            featureCollection.features.push({type:"Feature", properties:null, geometry:geominit});
-            /*function showFeature (tile, proj) {
-              proj = proj(tile);
-              return;
-            }*/
-            //map.add(po.layer(showFeature).tile(false));
-            //updateFeatures();
-            //editGeometry(geom);
-            symbolEditor = useCanvasEditor(editingSymbols)
-            symbolEditor(designFeature, geom)
-        }
-
-        function addCurbs () { 
-          d3.json("/curblines/_design/tgs/_spatial/_list/geojson/geoms?bbox="+
-            map.extent()[0].lon + ',' +
-            map.extent()[0].lat + ',' +
-            map.extent()[1].lon + ',' +
-            map.extent()[1].lat, 
-            
-            function (rv) {
-              rv.features.forEach(function (curbline) {
-                featureCollection.features.push(curbline)
-                console.log('curbline')
-                console.log(curbline)
-                updateFeatures();
-              })
-            })
+      function addFeature() {
+          var geom = {type:"Polygon", coordinates:[[]]},
+              size = 0.00005125,
+              center = map.center();
+          geom.coordinates[0].push([center.lon - size, center.lat + size]);
+          geom.coordinates[0].push([center.lon + size, center.lat + size]);
+          geom.coordinates[0].push([center.lon + size, center.lat - size]);
+          geom.coordinates[0].push([center.lon - size, center.lat - size]);
+          geom.coordinates[0].push([center.lon - size, center.lat + size]);
+          if (0) {
+              geom.type = (1) ? "LineString" : "MultiPoint";
+              geom.coordinates = geom.coordinates[0];
+              geom.coordinates.pop();
+          } else if (1) {
+              geom = {type:"GeometryCollection", geometries:[geom]};
           }
-          
-          /*        
-          
-          // some version of this with a styling load function is probably 
-          // good for a full svg background map
-          map.add(po.geoJson()
-              .url("/curblines/_design/tgs/_spatial/_list/geojson/geoms?bbox={G}")
-              //.url("/citylots/_design/tgs/_spatial/_list/geojson/geoms?bbox={G}")
-              .tile(true)
-              .on("load", function (e) {
-                // make like the city presentation document color scheme
-                return; 
-              }))
-          
-          */
+          featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
+          updateFeatures();
+          console.log(featureCollection)
+          editGeometry(geom);
+      }
 
-        function addFeature() {
-            var geom = {type:"Polygon", coordinates:[[]]},
-                size = 0.00005125,
-                center = map.center();
-            geom.coordinates[0].push([center.lon - size, center.lat + size]);
-            geom.coordinates[0].push([center.lon + size, center.lat + size]);
-            geom.coordinates[0].push([center.lon + size, center.lat - size]);
-            geom.coordinates[0].push([center.lon - size, center.lat - size]);
-            geom.coordinates[0].push([center.lon - size, center.lat + size]);
-            if (0) {
-                geom.type = (1) ? "LineString" : "MultiPoint";
-                geom.coordinates = geom.coordinates[0];
-                geom.coordinates.pop();
-            } else if (1) {
-                geom = {type:"GeometryCollection", geometries:[geom]};
-            }
-            featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
-            updateFeatures();
-            console.log(featureCollection)
-            editGeometry(geom);
-        }
+      var editingGeometry = null;
+      function editGeometry(geom) {
+          d3.select(document.body).classed('editing_shape', true);
+          editor.geometry(editingGeometry = geom);
+          vector.reshow();
+      }
 
-        var editingGeometry = null;
-        function editGeometry(geom) {
-            d3.select(document.body).classed('editing_shape', true);
-            editor.geometry(editingGeometry = geom);
-            vector.reshow();
-        }
+      function saveEdits(sym) {
+          if (typeof sym == 'object' && sym.geometry) {
+            featureCollection.features.push(sym)
+            updateFeatures()
+            finishEditing()
+            return
+          }
 
-        function saveEdits() {
-            var newGeometry = editor.geometry();
-            Object.keys(newGeometry).forEach(function (key) {
-                editingGeometry[key] = newGeometry[key];
-                if (key === "geometries") delete editingGeometry["coordinates"];
-                if (key === "coordinates") delete editingGeometry["geometries"];
-            });
-            updateFeatures();
-            finishEditing();
-        }
+          var newGeometry = editor.geometry();
+          Object.keys(newGeometry).forEach(function (key) {
+              editingGeometry[key] = newGeometry[key];
+              if (key === "geometries") delete editingGeometry["coordinates"];
+              if (key === "coordinates") delete editingGeometry["geometries"];
+          });
+          updateFeatures();
+          finishEditing();
+      }
 
-        function deleteEdited() {
-            var removedFeature = featureCollection.features.filter(function (f) { return f.geometry === editingGeometry; })[0];
-            console.log(featureCollection.features.length);
-            featureCollection.features = featureCollection.features.filter(function (f) { return f !== removedFeature; });
-            console.log(featureCollection.features.length);
-            updateFeatures();
-            finishEditing();
-        }
-        function finishEditing() {
-            editor.geometry(editingGeometry = null);
-            vector.reshow();
-            d3.select(document.body).classed('editing_shape', false);
-        }
-        d3.select('#shape_controls .cancel').on('click', function () {
-            d3.event.preventDefault();
-            finishEditing();
-        });
-        d3.select('#shape_controls .save').on('click', function () {
-            d3.event.preventDefault();
-            saveEdits();
-        });
-        d3.select('#shape_controls .delete').on('click', function () {
-            d3.event.preventDefault();
-            deleteEdited();
-        });
-    </script>
+      function deleteEdited() {
+          var removedFeature = featureCollection.features.filter(function (f) { return f.geometry === editingGeometry; })[0];
+          console.log(featureCollection.features.length);
+          featureCollection.features = featureCollection.features.filter(function (f) { return f !== removedFeature; });
+          console.log(featureCollection.features.length);
+          updateFeatures();
+          finishEditing();
+      }
+      function finishEditing() {
+          editor.geometry(editingGeometry = null);
+          vector.reshow();
+          d3.select(document.body).classed('editing_shape', false);
+      }
+      d3.select('#shape_controls .cancel').on('click', function () {
+          d3.event.preventDefault();
+          finishEditing();
+      });
+      d3.select('#shape_controls .save').on('click', function () {
+        d3.event.preventDefault();
+          if (typeof editingSymbol === 'object') {
+            saveEdits(editingSymbol)
+          } else { 
+            saveEdits() 
+          }
+      });
+
+      d3.select('#shape_controls .delete').on('click', function () {
+          d3.event.preventDefault();
+          deleteEdited();
+      });
+  </script>
 </body>
 </html>
