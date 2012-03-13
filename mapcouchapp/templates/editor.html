@@ -177,7 +177,7 @@
           }
       }, false);
 
-      var editingSymbol = null
+      var editingSymbol = false
 
       function addDesignPt (designFeature) {
           // I touch no one and no one touches me
@@ -222,8 +222,6 @@
 
     var symbolFeature = function (designFeature, geom) {
       editingSymbol = geom
-      console.log('fullgeom')
-      console.log(geom)
       if (designFeature.match(/png$|jpg$|jpeg$/)) {
         fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
           d3.select(document.body).classed('editing_shape', true);
@@ -261,7 +259,6 @@
           }
           featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
           updateFeatures();
-          console.log(featureCollection)
           editGeometry(geom);
       }
 
@@ -273,12 +270,14 @@
       }
 
       function saveEdits(sym) {
-          if (typeof sym == 'object' && sym.geometry) {
+        if (typeof sym == 'object') {
+          if (typeof sym.geometry == 'object') {
             featureCollection.features.push(sym)
             updateFeatures()
             finishEditing()
             return
           }
+        }
 
           var newGeometry = editor.geometry();
           Object.keys(newGeometry).forEach(function (key) {
@@ -292,9 +291,7 @@
 
       function deleteEdited() {
           var removedFeature = featureCollection.features.filter(function (f) { return f.geometry === editingGeometry; })[0];
-          console.log(featureCollection.features.length);
           featureCollection.features = featureCollection.features.filter(function (f) { return f !== removedFeature; });
-          console.log(featureCollection.features.length);
           updateFeatures();
           finishEditing();
       }
