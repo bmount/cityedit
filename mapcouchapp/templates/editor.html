@@ -239,19 +239,25 @@
         
         d3.select('#doc_controls .df-save-symbol').on('click', function (designFeature) {
           d3.event.preventDefault();
-          groupFeatureUpdate = {type:"GeometryCollection", geometries:[]}
+          groupFeatureUpdate = {type:"FeatureCollection", features:[]}
           console.log('save symbol editingSymbols')
           editingSymbols.forEach( function (df) {
+              console.log('df')
               console.log(df)
-              if (df === null) return; 
-              groupFeatureUpdate.geometries.push(df)
-              console.log('yes')
-              console.log(featureCollection)
-              featureCollection.features.push({type:"Feature", geometry:df})
+              if (df === null) return;
+              delete df.properties 
+              //groupFeatureUpdate.features.push({type:"Feature", geometry:df})
+              groupFeatureUpdate.features.push({type:"Feature", geometry:df})
+              //console.log(featureCollection)
+              //featureCollection.features.push({type:"Feature", geometry:df})
             })
-          //featureCollection.features.push(groupFeatureUpdate)
-          updateFeatures();
+            console.log('groupFeatureUpdate')
+            console.log(groupFeatureUpdate)
+          groupFeatureUpdate.features.forEach(function (lpt) {
+            featureCollection.features.push(lpt)
+          })
           //finishEditing()
+            updateFeatures();
         })
 
         d3.select('#doc_controls .df-tree').on('click', function (designFeature) {
@@ -332,7 +338,8 @@
             function (rv) {
               rv.features.forEach(function (curbline) {
                 featureCollection.features.push(curbline)
-                //console.log(curbline)
+                console.log('curbline')
+                console.log(curbline)
                 updateFeatures();
               })
             })
