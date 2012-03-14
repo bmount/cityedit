@@ -8,7 +8,7 @@
     <script src="{{app_url}}/d3.min.js"></script>
     <script src="{{app_url}}/d3.geo.min.js"></script>
     <script src="{{app_url}}/fermata.min.js"></script>
-    <script src="{{app_url}}/polymaps-couchbb.js"></script>
+    <script src="{{app_url}}/polymaps-couchbb.min.js"></script>
     <script src="{{app_url}}/polymaps.editor.js"></script>
     <script src="{{app_url}}/polymaps.viewer.js"></script>
     <script src="{{app_url}}/fabric.all.min.js"></script>
@@ -51,6 +51,7 @@
     <a href class="df-remove">remove image</a>
     <a href class="df-save-symbol">save image</a>
     <a href class="done_design_element">reset</a>
+    <a href class="finder">Go to Finder</a>
     <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
 </form>
     
@@ -79,9 +80,9 @@
     // TODO: properly attribute whichever layer is used
     // if you're using tiles replicated from this app, attribution is optional
     map.add(po.image()
-      .url(po.url("http://{S}.sfgeo.org/cetiles2/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
-      //.url(po.url("http://localhost:5984/zt6/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
-        .hosts([1, 2, 3, 4])));
+      //.url(po.url("http://{S}.sfgeo.org/cetiles2/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
+      .url(po.url("http://localhost:5984/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
+      //  .hosts([1, 2, 3, 4])));
 
     var vector = po_metakaolin_viewer(),
       editor = po_metakaolin_editor();
@@ -146,6 +147,14 @@
       d3.select('#doc_controls .df-tree').on('click', function (designFeature) {
           d3.event.preventDefault();
           addDesignPt('treeabove.png');
+      });
+
+      d3.select('#doc_controls .finder').on('click', function () {
+        d3.event.preventDefault();
+        var zOut = window.location.hash
+        zOut = zOut.replace("#20.00/", "#18/")
+        console.log(zOut)
+        window.location = "{{app_url}}/finder.html"+zOut
       });
 
       d3.select('#doc_controls .df-tacos').on('click', function (designFeature) {
