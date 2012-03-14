@@ -2,7 +2,7 @@ var po = org.polymaps;
 
 var map = po.map()
   .container(document.body.appendChild(po.svg("svg")))
-  .center({lat: 37.76, lon: -122.44})
+  .center({lat: 37.7459, lon: -122.4318})
   .zoom(13)
   .add(po.interact())
   .add(po.hash())
