@@ -8,13 +8,15 @@
   </head>
   <style>
     #zoomin { position: absolute; top:10px; right: 10px; font-family:Abril Fatface; font-size: 40px; }
-
+    #attrib { position: fixed; left:0; bottom:0; font-size:9; font-family:Abril Fatface; }
   </style> 
   <body id="mapbody">
     <script src="script/coveragelookup.js"></script>
     <div id="map">
     </div>
   <a id="zoomin" href="javascript:void(0)">Zoom way in and change things</a>
+  <div id="attrib">Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.</div>
+
   <script>
     
     function zoomwayin () {
