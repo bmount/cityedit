@@ -41,16 +41,14 @@
     <button class="save" disabled>Save</button><br>
     <a href class="add">⫀ Add Something</a> (Like what? Like 
       <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" 
-        target="_blank">this</a>.) | 
-    <a href class="add_existing_curbs">MOVE THE CURBS</a> (double click to edit)
-    <a href class="df-tree">tree</a>
+        target="_blank">this</a>.) | (double click curbs/medians to edit) or add: &#x2619;
+    <a href class="df-tree">a tree</a> &#x2619;
     <img href class="df-basketball" height="50" width="50" 
         style='position:absolute;top:0px;right:50px;' 
         src="{{app_url}}/designfeatures/stbasketball.jpg" />    
-    <a href class="df-tacos">tacos</a>
-    <a href class="df-remove">remove image</a>
-    <a href class="df-save-symbol">save image</a>
-    <a href class="done_design_element">reset</a>
+    <a href class="df-tacos">a tacotruck</a> &#x2619;
+    <a href class="df-remove">remove image</a> &#x2619;
+    <a href class="done_design_element">reset</a> &#x2619;
     <a href class="finder">Go to Finder</a>
     <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
 </form>
@@ -136,6 +134,7 @@
           canvas.remove(canvas.getActiveObject());
       });
       
+      // <a href class="df-save-symbol">save image</a>
       d3.select('#doc_controls .df-save-symbol').on('click', function () {
         d3.event.preventDefault();
         groupFeatureUpdate = {type:"FeatureCollection", features:[]}
@@ -326,6 +325,9 @@
           d3.event.preventDefault();
           deleteEdited();
       });
+
+      document.addEventListener("DOMContentLoaded", addCurbs, false)
+
   </script>
 </body>
 </html>
