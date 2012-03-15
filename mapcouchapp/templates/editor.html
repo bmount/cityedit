@@ -198,20 +198,22 @@
           symbolEditor(designFeature, geom)
       }
 
-      function addCurbs () { 
-        d3.json("/curblines/_design/tgs/_spatial/_list/geojson/geoms?bbox="+
-          map.extent()[0].lon + ',' +
-          map.extent()[0].lat + ',' +
-          map.extent()[1].lon + ',' +
-          map.extent()[1].lat, 
-          
-          function (rv) {
-            rv.features.forEach(function (curbline) {
-              featureCollection.features.push(curbline)
-              updateFeatures();
+      function addCurbs () {
+        if (featureCollection.features.length === 0) { 
+          d3.json("/curblines/_design/tgs/_spatial/_list/geojson/geoms?bbox="+
+            map.extent()[0].lon + ',' +
+            map.extent()[0].lat + ',' +
+            map.extent()[1].lon + ',' +
+            map.extent()[1].lat, 
+            
+            function (rv) {
+              rv.features.forEach(function (curbline) {
+                featureCollection.features.push(curbline)
+                updateFeatures();
+              })
             })
-          })
-      }
+          }
+        }
     
   function useCanvasEditor () { 
     (function () {
