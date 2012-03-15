@@ -58,13 +58,14 @@ var po_metakaolin_viewer = function () {
 
     function load(tile, tileProj) {
         function geometryElement(feat) {
-          geom = feat.geometry
+          geom = (typeof feat.geometry == 'undefined')? feat : feat.geometry
           //console.log(geom)
           //if (typeof geom.properties != 'undefined') {
           //  console.log(geom)
           //}
           var DRAW = {
                 "Point": function (pos, feat) {
+                    //pos = feat.geometry
                     var el, 
                       pt = posProj(pos)
                     if (typeof feat.properties.imageName === 'string') {
@@ -130,7 +131,6 @@ var po_metakaolin_viewer = function () {
             tile.element.appendChild(el)
             return {element:el, data:feature};
         });
-        console.log(tile.features)
         viewer.dispatch({type:'load', tile:tile, features:tile.features});
     }
 

@@ -86,6 +86,7 @@
       editor = po_metakaolin_editor();
     map.add(vector).add(editor);
 
+
       d3.select(vector.container()).classed('viewer', true);
       vector.on('show', function (loadEvent) {
           loadEvent.features.forEach(function (f,i) {
@@ -214,7 +215,14 @@
             })
           }
         }
-    
+
+  function exitCanvasEditor () {
+    (function () {
+      __('map').style.zIndex = 1
+    })()
+    canvas.clear()
+  }
+
   function useCanvasEditor () { 
     (function () {
       __('map').style.zIndex = -1
@@ -265,7 +273,8 @@
               geom.coordinates = geom.coordinates[0];
               geom.coordinates.pop();
           } else if (1) {
-              geom = {type:"GeometryCollection", geometries:[geom]};
+              geom = geom
+              //geom = {type:"GeometryCollection", geometries:[geom]};
           }
           featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
           updateFeatures();
@@ -285,18 +294,19 @@
             featureCollection.features.push(sym)
             updateFeatures()
             finishEditing()
+            exitCanvasEditor()
             return
           }
         }
 
-          var newGeometry = editor.geometry();
-          Object.keys(newGeometry).forEach(function (key) {
-              editingGeometry[key] = newGeometry[key];
-              if (key === "geometries") delete editingGeometry["coordinates"];
-              if (key === "coordinates") delete editingGeometry["geometries"];
-          });
-          updateFeatures();
-          finishEditing();
+        var newGeometry = editor.geometry();
+        Object.keys(newGeometry).forEach(function (key) {
+            editingGeometry[key] = newGeometry[key];
+            if (key === "geometries") delete editingGeometry["coordinates"];
+            if (key === "coordinates") delete editingGeometry["geometries"];
+        });
+        updateFeatures();
+        finishEditing();
       }
 
       function deleteEdited() {
@@ -328,6 +338,7 @@
           deleteEdited();
       });
 
+      //document.addEventListener("DOMContentLoaded", curbLayer, false)
       document.addEventListener("DOMContentLoaded", addCurbs, false)
 
   </script>

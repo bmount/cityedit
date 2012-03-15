@@ -88,7 +88,7 @@ var po_metakaolin_editor = function () {
     function loadGeometry(geom) {
         var LOAD = {
             "Point": function (pt) {
-              console.log(pt)  
+              //console.log(pt)  
               createNode(pt);
             },
             "LineString": function (a) {
