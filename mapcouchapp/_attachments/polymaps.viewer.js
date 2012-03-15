@@ -59,10 +59,7 @@ var po_metakaolin_viewer = function () {
     function load(tile, tileProj) {
         function geometryElement(feat) {
           geom = (typeof feat.geometry == 'undefined')? feat : feat.geometry
-          //console.log(geom)
-          //if (typeof geom.properties != 'undefined') {
-          //  console.log(geom)
-          //}
+          // ominously breaks the default geometry collection loader
           var DRAW = {
                 "Point": function (pos, feat) {
                     //pos = feat.geometry

@@ -153,7 +153,6 @@
         d3.event.preventDefault();
         var zOut = window.location.hash
         zOut = zOut.replace("#20.00/", "#18/")
-        console.log(zOut)
         window.location = "{{app_url}}/finder.html"+zOut
       });
 
@@ -274,6 +273,7 @@
               geom.coordinates.pop();
           } else if (1) {
               geom = geom
+              // 
               //geom = {type:"GeometryCollection", geometries:[geom]};
           }
           featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
@@ -338,7 +338,6 @@
           deleteEdited();
       });
 
-      //document.addEventListener("DOMContentLoaded", curbLayer, false)
       document.addEventListener("DOMContentLoaded", addCurbs, false)
 
   </script>
