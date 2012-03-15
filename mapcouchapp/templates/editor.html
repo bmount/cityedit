@@ -78,9 +78,9 @@
     // TODO: properly attribute whichever layer is used
     // if you're using tiles replicated from this app, attribution is optional
     map.add(po.image()
-      .url(po.url("http://{S}.sfgeo.org/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
-      //.url(po.url("/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
-        .hosts([1, 2, 3, 4])));
+      //.url(po.url("http://{S}.sfgeo.org/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
+      .url(po.url("/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
+      //  .hosts([1, 2, 3, 4])));
 
     var vector = po_metakaolin_viewer(),
       editor = po_metakaolin_editor();

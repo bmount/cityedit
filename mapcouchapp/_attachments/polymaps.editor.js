@@ -1,10 +1,10 @@
 /*
     Metakaolin's geometry editing layer, for Polymaps
     https://github.com/natevw/metakaolin
-    
+
     Copyright (c) 2011, Nathan Vander Wilt
     All rights reserved.
-    
+
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
         * Redistributions of source code must retain the above copyright
@@ -27,6 +27,7 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 var po_metakaolin_editor = function () {
     var po = org.polymaps,
         DOUBLE_CLICK_MSEC = 300,
@@ -34,12 +35,12 @@ var po_metakaolin_editor = function () {
         MARKER_RADIUS = 5,
         HIGHLIGHT_WIDTH = 2,
         CONNECTION_WIDTH = 5;
-    
+
     var editor = po.layer(load);
     editor.tile(false);
     editor.cache.size(0);
     resetNodes();
-    
+
     editor.geometry = function (geom) {
         if (!arguments.length) {
             return dumpGeometry();
@@ -49,14 +50,14 @@ var po_metakaolin_editor = function () {
         editor.reload();
         return editor;
     }
-    
-    
+
+
     var nodeObjects, nodeTicket;
     function resetNodes() {
         nodeObjects = {};
         nodeTicket = 0;
     }
-    
+
     function createNode(pt) {
         nodeTicket += 1;
         var n = {id:nodeTicket, position:pt, connectedTo:{}};
@@ -69,7 +70,7 @@ var po_metakaolin_editor = function () {
         });
         delete nodeObjects[n.id];
     }
-    
+
     function connectNodes(a, b) {
         var c = {};
         a.connectedTo[b.id] = c;
@@ -80,10 +81,10 @@ var po_metakaolin_editor = function () {
         delete a.connectedTo[b.id];
         delete b.connectedTo[a.id];
     }
-    
-    
+
+
     // loadGeometry/dumpGeometry convert between GeoJSON and internal "linked nodes" representation
-    
+
     function loadGeometry(geom) {
         var LOAD = {
             "Point": function (pt) {
@@ -115,7 +116,7 @@ var po_metakaolin_editor = function () {
                 });                    
             }
         };
-        
+
         if (LOAD[geom.type]) {
             LOAD[geom.type](geom.coordinates);
         } else if (geom.type.indexOf("Multi") === 0) {
@@ -126,19 +127,19 @@ var po_metakaolin_editor = function () {
             throw Error("Unknown geometry type: " + geom.type);
         }
     }
-    
-    
+
+
     function dumpGeometry() {
         var points = [], lines = [], rings = [],
             consumedNodes = {}, currentObject = null;
-        
+
         // first pass grab all points and line segments
         Object.keys(nodeObjects).forEach(function (id) {
             if (consumedNodes[id]) return;
-            
+
             var node = nodeObjects[id],
                 connections = Object.keys(node.connectedTo);
-            
+
             if (!connections.length) {
                 // a rock feels no pain. an island never cries.
                 points.push(node.position);
@@ -158,14 +159,14 @@ var po_metakaolin_editor = function () {
                 // middle of ring or line, skip for now
             }
         });
-        
+
         // now we can assume any un-consumed nodes belong to rings
         Object.keys(nodeObjects).forEach(function (id) {
             if (consumedNodes[id]) return;
-            
+
             var node = nodeObjects[id],
                 connections = Object.keys(node.connectedTo);
-            
+
             var ring = [], nextId;
             while (node) {
                 ring.push(node.position);
@@ -177,7 +178,7 @@ var po_metakaolin_editor = function () {
             ring.push(ring[0]);
             rings.push(ring);
         });
-        
+
         // now convert into simplest equivalent GeoJSON object (anything from Point -> GeometryCollection)
         var geometry = {};
         if (points.length && !lines.length && !rings.length) {
@@ -219,24 +220,24 @@ var po_metakaolin_editor = function () {
         }
         return geometry;
     }
-    
-    
+
+
     // three core interactions: "extend" a point (/refine a segment), "break" a connection, "merge" two points
     // to add a new point, tap an existing one and pull its extension onto the map
     // to unlink segments, tap a point or segment and 
     // to delete a point, drop it onto another — this combines their connections as well and can be used to link segments together
     function _stopEvent(e) { e.preventDefault(); e.stopPropagation(); }
-    
+
     function load(tile, tileProj) {
         tile.element = po.svg('g');
-        
+
         var connectionsLayer = po.svg('g'),
             nodesLayer = po.svg('g'),
             chromeLayer = po.svg('g');
         tile.element.appendChild(connectionsLayer);
         tile.element.appendChild(nodesLayer);
         tile.element.appendChild(chromeLayer);
-        
+
         function setupNodeUI(n, precaptured) {
             if (!n.ui) {
                 n.ui = {};
@@ -258,7 +259,7 @@ var po_metakaolin_editor = function () {
                         nn.ui.targetNode = n;
                     } else setupCapture();
                 }, false);
-                
+
                 nodesLayer.appendChild(n.ui.el);
             }
             function setupCapture() {
@@ -272,7 +273,7 @@ var po_metakaolin_editor = function () {
                         Object.keys(n.connectedTo).forEach(function (cid) {
                             setupConnectionUI(n.connectedTo[cid], n);
                         });
-                        
+
                         // cheatly hit testing, HT http://stackoverflow.com/questions/2174640/hit-testing-svg-shapes
                         n.ui.el.style.setProperty('display', "none", null);
                         var targetNode, targetConnection, targetEl = document.elementFromPoint(e.pageX, e.pageY);
@@ -282,7 +283,7 @@ var po_metakaolin_editor = function () {
                             targetConnection = targetEl._graph_connecion;
                         }
                         n.ui.el.style.removeProperty('display');
-                        
+
                         if (targetNode) {
                             var combinedConnections = {};
                             Object.keys(targetNode.connectedTo).forEach(function (cid) { combinedConnections[cid] = true; });
@@ -306,7 +307,7 @@ var po_metakaolin_editor = function () {
                         _stopEvent(e);
                         n.ui.el.removeAttribute('fill');
                         uncapture('mouse');
-                        
+
                         if (n.ui.targetNode) {          // remove after merging unique connections to target node
                             var tn = n.ui.targetNode;
                             tn.ui.el.removeAttribute('fill');
@@ -334,14 +335,14 @@ var po_metakaolin_editor = function () {
                 });
             }
             if (precaptured) setupCapture();
-            
+
             _setPosition(n.ui.el, 'c_', n.position);
         }
         function removeNodeUI(n) {
             nodesLayer.removeChild(n.ui.el);
             delete n.ui;
         }
-        
+
         function setupConnectionUI(c, n) {
             if (!c.ui) {
                 c.ui = {};
@@ -349,7 +350,7 @@ var po_metakaolin_editor = function () {
                 c.ui.el.setAttribute('stroke', "grey");
                 c.ui.el.setAttribute('stroke-width', CONNECTION_WIDTH);
                 c.ui.el._graph_connecion = c;
-                
+
                 c.ui.newVertex = po.svg('circle');
                 c.ui.newVertex.setAttribute('r', MARKER_RADIUS);
                 c.ui.newVertex.setAttribute('fill', "none");
@@ -392,7 +393,7 @@ var po_metakaolin_editor = function () {
                 }, false);
                 connectionsLayer.appendChild(c.ui.el);
             }
-            
+
             var nN = (c.ui.n1 && c.ui.n1 !== n) ? 2 : 1;
             c.ui['n'+nN] = n;   // freshen storage of which node owns which end
             _setPosition(c.ui.el, '_'+nN, n.position);
@@ -405,7 +406,7 @@ var po_metakaolin_editor = function () {
             connectionsLayer.removeChild(c.ui.el);
             delete c.ui;
         }
-        
+
         var proj = tileProj(tile).locationPoint;
         function _setPosition(el, attr, pos) {
             var pt = proj({lat:pos[1], lon:pos[0]});
@@ -426,7 +427,7 @@ var po_metakaolin_editor = function () {
                 dx = pt2.x - pt1.x, dy = pt2.y - pt1.y;
             return Math.sqrt(dx*dx + dy*dy);
         }
-        
+
         Object.keys(nodeObjects).forEach(function (id) {
             var node = nodeObjects[id];
             setupNodeUI(node);
@@ -436,10 +437,10 @@ var po_metakaolin_editor = function () {
             });
         });
     }
-    
-    
+
+
     // on mouse/touch down, an object can "capture" that input and these window move/up listeners will dispatch to its handlers
-    
+
     var inputOwners = {};
     function capture(source, events) {
         inputOwners[source] = events;
@@ -447,7 +448,7 @@ var po_metakaolin_editor = function () {
     function uncapture(source) {
         delete inputOwners[source];
     }
-    
+
     window.addEventListener('mousemove', function (e) {
         var owner = inputOwners['mouse'];
         if (owner && owner.move) {
@@ -460,7 +461,7 @@ var po_metakaolin_editor = function () {
             return owner.up(e);
         };
     }, false);
-    
-    
+
+
     return editor;
 };
