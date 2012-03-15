@@ -88,7 +88,6 @@ var po_metakaolin_editor = function () {
     function loadGeometry(geom) {
         var LOAD = {
             "Point": function (pt) {
-              //console.log(pt)  
               createNode(pt);
             },
             "LineString": function (a) {
@@ -416,10 +415,7 @@ var po_metakaolin_editor = function () {
             return pt;
         }
         function _getLocation(e) {
-            //console.log(e)
             var mouse = editor.map().mouse(e);
-            //console.log(mouse)
-            //console.log(editor.map().pointLocation(mouse))
             return editor.map().pointLocation(mouse);
         }
         function _dist(pos1, pos2) {
