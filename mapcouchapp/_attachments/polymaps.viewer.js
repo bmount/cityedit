@@ -1,10 +1,10 @@
 /*
     Metakaolin's geometry viewing layer, for Polymaps
     https://github.com/natevw/metakaolin
-    
+
     Copyright (c) 2011, Nathan Vander Wilt
     All rights reserved.
-    
+
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
         * Redistributions of source code must retain the above copyright
@@ -27,13 +27,14 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 var po_metakaolin_viewer = function () {
     var po = org.polymaps,
         POINT_RADIUS = 4.5;
-    
+
     var viewer = po.layer(load);
     viewer.tile(false);
-    
+
     var features;
     viewer.features = function (newFeatures) {
         if (!arguments.length) {
@@ -43,18 +44,18 @@ var po_metakaolin_viewer = function () {
         viewer.reload();
         return viewer;
     }
-    
+
     viewer.show = function (tile) {
         viewer.dispatch({type:'show', tile:tile, features:tile.features});
         return viewer;
     };
-    
+
     viewer.reshow = function () {
         var locks = viewer.cache.locks();
         for (var key in locks) viewer.show(locks[key]);
         return viewer;
     };
-    
+
     function load(tile, tileProj) {
         function geometryElement(geom) {
             var DRAW = {
@@ -85,7 +86,7 @@ var po_metakaolin_viewer = function () {
                     return el;
                 }
             };
-            
+
             var el;
             if (DRAW[geom.type]) {
                 el = DRAW[geom.type](geom.coordinates);
@@ -105,7 +106,7 @@ var po_metakaolin_viewer = function () {
             }
             return el;
         }
-        
+
         var proj = tileProj(tile).locationPoint,
             posProj = function (pos) { return proj({lat:pos[1], lon:pos[0]}); };
         tile.element = po.svg('g');
@@ -116,6 +117,6 @@ var po_metakaolin_viewer = function () {
         });
         viewer.dispatch({type:'load', tile:tile, features:tile.features});
     }
-    
+
     return viewer;
 };
