@@ -57,13 +57,28 @@ var po_metakaolin_viewer = function () {
     };
 
     function load(tile, tileProj) {
-        function geometryElement(geom) {
-            var DRAW = {
-                "Point": function (pos) {
-                    var el = po.svg("circle"),
-                        pt = posProj(pos);
-                    el.setAttribute('cx', pt.x), el.setAttribute('cy', pt.y);
-                    el.setAttribute('r', POINT_RADIUS);
+        function geometryElement(feat) {
+          geom = feat.geometry
+          //console.log(geom)
+          //if (typeof geom.properties != 'undefined') {
+          //  console.log(geom)
+          //}
+          var DRAW = {
+                "Point": function (pos, feat) {
+                    var el, 
+                      pt = posProj(pos)
+                    if (typeof feat.properties.imageName === 'string') {
+                      el = po.svg("image")
+                      el.setAttribute("x", pt.x)
+                      el.setAttribute("y", pt.y)
+                      el.setAttribute("width", 100)
+                      el.setAttribute("height", 100)
+                      el.setAttributeNS("http://www.w3.org/1999/xlink", 'href', "/cityedit/_design/maps/designfeatures/"+feat.properties.imageName)
+                    } else {
+                      el = po.svg("circle"),
+                      el.setAttribute('cx', pt.x), el.setAttribute('cy', pt.y);
+                      el.setAttribute('r', POINT_RADIUS);
+                    }
                     return el;
                 },
                 "LineString": function (a) {
@@ -89,7 +104,7 @@ var po_metakaolin_viewer = function () {
 
             var el;
             if (DRAW[geom.type]) {
-                el = DRAW[geom.type](geom.coordinates);
+                el = DRAW[geom.type](geom.coordinates, feat);
             } else if (geom.type.indexOf("Multi") === 0) {
                 el = po.svg('g');
                 var subtype = geom.type.slice("Multi".length);
@@ -111,10 +126,11 @@ var po_metakaolin_viewer = function () {
             posProj = function (pos) { return proj({lat:pos[1], lon:pos[0]}); };
         tile.element = po.svg('g');
         if (features) tile.features = features.map(function (feature) {
-            var el = geometryElement(feature.geometry);
+            var el = geometryElement(feature);
             tile.element.appendChild(el)
             return {element:el, data:feature};
         });
+        console.log(tile.features)
         viewer.dispatch({type:'load', tile:tile, features:tile.features});
     }
 
