@@ -48,7 +48,7 @@
         src="{{app_url}}/designfeatures/stbasketball.jpg" />    
     <a href class="df-tacos">a tacotruck</a> &#x2619;
     <a href class="df-remove">remove image</a> &#x2619;
-    <a href class="done_design_element">reset</a> &#x2619;
+    <a href class="reset">reset</a> &#x2619;
     <a href class="finder">Go to Finder</a>
     <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
 </form>
@@ -149,13 +149,6 @@
           addDesignPt('treeabove.png');
       });
 
-      d3.select('#doc_controls .finder').on('click', function () {
-        d3.event.preventDefault();
-        var zOut = window.location.hash
-        zOut = zOut.replace("#20.00/", "#18/")
-        window.location = "{{app_url}}/finder.html"+zOut
-      });
-
       d3.select('#doc_controls .df-tacos').on('click', function (designFeature) {
           d3.event.preventDefault();
           addDesignPt('tonayense.jpg');
@@ -171,6 +164,18 @@
           addCurbs();
       });
       
+      d3.select('#doc_controls .reset').on('click', function () {
+        d3.event.preventDefault();
+        window.location.reload(true)
+      });
+
+      d3.select('#doc_controls .finder').on('click', function () {
+        d3.event.preventDefault();
+        var zOut = window.location.hash
+        zOut = zOut.replace("#20.00/", "#18/")
+        window.location = "{{app_url}}/finder.html"+zOut
+      });
+
       d3.select('input[name=title]').on('change', function () {
           d3.select('#doc_controls .save').property('disabled', false);
       });
@@ -245,9 +250,20 @@
           img.scaleToWidth(120)
           img.set({left:500, top:200})
           canvas.observe({"mouse:up" : function (e) {
+            console.log('e')  
+            console.log(e)  
+            var trgt = e.memo.target
             // hardcoding 50 px top margin for the moment:
-            var upPt = map.pointLocation({x: e.memo.e.clientX, y: e.memo.e.clientY-50})
+            //var upPt = map.pointLocation({x: e.memo.e.clientX, y: e.memo.e.clientY-50})
+            var upPt = map.pointLocation({x: trgt.left, y: trgt.top-50})
+            console.log(upPt)
             editingSymbol.geometry.coordinates = [upPt.lon, upPt.lat]
+            editingSymbol.properties.userData = e.memo.target
+            //editingSymbol.properties.poData = e.memo.target
+            
+            console.log(e)
+            console.log(geom)
+            dbgglobal = e
             }
           })
           canvas.add(img)

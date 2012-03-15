@@ -4,6 +4,8 @@
 
     Copyright (c) 2011, Nathan Vander Wilt
     All rights reserved.
+    Modifications for github.com/bvmou/cityedit (c) 2012 Brian Mount,
+    released under same terms as original author(s)
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -59,18 +61,21 @@ var po_metakaolin_viewer = function () {
     function load(tile, tileProj) {
         function geometryElement(feat) {
           geom = (typeof feat.geometry == 'undefined')? feat : feat.geometry
-          // ominously breaks the default geometry collection loader
+          // ominously breaks the default geometry collection loader!
           var DRAW = {
                 "Point": function (pos, feat) {
                     //pos = feat.geometry
                     var el, 
                       pt = posProj(pos)
                     if (typeof feat.properties.imageName === 'string') {
+                      var udata = feat.properties.userData
                       el = po.svg("image")
                       el.setAttribute("x", pt.x)
                       el.setAttribute("y", pt.y)
-                      el.setAttribute("width", 100)
-                      el.setAttribute("height", 100)
+                      //el.setAttribute("transform", "scale("+udata.scaleX+")")
+                      //el.setAttribute("transform", "scale("+udata.scale
+                      el.setAttribute("width", udata.currentWidth)
+                      el.setAttribute("height", udata.currentHeight)
                       el.setAttributeNS("http://www.w3.org/1999/xlink", 'href', "/cityedit/_design/maps/designfeatures/"+feat.properties.imageName)
                     } else {
                       el = po.svg("circle"),
