@@ -336,6 +336,7 @@
         d3.event.preventDefault();
           if (typeof editingSymbol === 'object') {
             saveEdits(editingSymbol)
+            editingSymbol = false
           } else { 
             saveEdits() 
           }
