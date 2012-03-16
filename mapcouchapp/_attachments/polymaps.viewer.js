@@ -31,6 +31,7 @@
 */
 
 var po_metakaolin_viewer = function () {
+    π = Math.PI
     var po = org.polymaps,
         POINT_RADIUS = 4.5;
 
@@ -58,6 +59,20 @@ var po_metakaolin_viewer = function () {
         return viewer;
     };
 
+    function rotationCenter(dsn, poPt) {
+      // TODO, fix center of rotation
+      var trans = "rotate(" + (dsn.theta * 180 / π).toString(),
+          ys = [],
+          xs = [],
+          numPts
+      for (var pt in dsn.oCoords) {
+        xs.push(dsn.oCoords[pt].x)
+        ys.push(dsn.oCoords[pt].y)
+      }
+      numPts = xs.length
+      //console.log(xs)
+    }
+
     function load(tile, tileProj) {
         function geometryElement(feat) {
           geom = (typeof feat.geometry == 'undefined')? feat : feat.geometry
@@ -72,11 +87,25 @@ var po_metakaolin_viewer = function () {
                       el = po.svg("image")
                       el.setAttribute("x", pt.x)
                       el.setAttribute("y", pt.y)
-                      //el.setAttribute("transform", "scale("+udata.scaleX+")")
                       //el.setAttribute("transform", "scale("+udata.scale
                       el.setAttribute("width", udata.currentWidth)
                       el.setAttribute("height", udata.currentHeight)
-                      el.setAttributeNS("http://www.w3.org/1999/xlink", 'href', "/cityedit/_design/maps/designfeatures/"+feat.properties.imageName)
+                      el.setAttributeNS("http://www.w3.org/1999/xlink", 'href', 
+                          "/cityedit/_design/maps/designfeatures/"+feat.properties.imageName)
+                      /*el.setAttribute("transform", "rotate("+(udata.theta * 180/π).toString() +
+                                      " " + (pt.x + ( udata.oCoords.tr.x - 
+                                                    udata.oCoords.bl.x )/2)
+                                            .toString() +
+                                      " " + (pt.y + ( udata.oCoords.tr.y -
+                                                    udata.oCoords.bl.y)/2)
+                                        .toString() + ")")
+                      */
+                      
+                      el.setAttribute("transform", "rotate("+(udata.theta * 180/π).toString() +
+                                      " " + (pt.x).toString() +
+                                      " " + (pt.y).toString() + ")")
+
+                    //rotationCenter(udata, pt)
                     } else {
                       el = po.svg("circle"),
                       el.setAttribute('cx', pt.x), el.setAttribute('cy', pt.y);
