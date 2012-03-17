@@ -91,6 +91,8 @@ var po_metakaolin_viewer = function () {
                       //el.setAttribute("transform", "scale("+udata.scale
                       el.setAttribute("width", udata.width * udata.scaleX)
                       el.setAttribute("height", udata.height * udata.scaleY)
+                      //el.setAttribute("width", udata.currentWidth)
+                      //el.setAttribute("height", udata.currentHeight)
                       el.setAttributeNS("http://www.w3.org/1999/xlink", 'href', 
                           "/cityedit/_design/maps/designfeatures/"+feat.properties.imageName)
                       /*el.setAttribute("transform", "rotate("+(udata.theta * 180/π).toString() +
@@ -101,6 +103,7 @@ var po_metakaolin_viewer = function () {
                                                     udata.oCoords.bl.y)/2)
                                         .toString() + ")")
                       */
+                      console.log('udata')
                       console.log(udata)
                       ang = (typeof udata.theta == 'undefined') ? udata.angle : udata.theta * 180/π
                       el.setAttribute("transform", "rotate("+(ang).toString() +

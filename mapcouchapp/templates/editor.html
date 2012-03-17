@@ -15,7 +15,7 @@
 
   <style>
     #map { position: absolute; top: 50px; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; }
-    #canvfeature { position: absolute; top: 4em; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
+    #canvfeature { position: absolute; top: 50px; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
     #shape_controls, .editing_shape #doc_controls { display: none; }
     #doc_controls, .editing_shape #shape_controls { display: block; }
     
@@ -43,11 +43,12 @@
       <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" 
         target="_blank">this</a>.) | (double click curbs/medians to edit) or add: &#x2619;
     <a href class="df-tree">a tree</a> &#x2619;
-    <img href class="df-basketball" height="50" width="50" 
+    <--! <img href class="df-basketball" height="50" width="50" 
         style='position:absolute;top:0px;right:50px;' 
-        src="{{app_url}}/designfeatures/stbasketball.jpg" />    
+        src="{{app_url}}/designfeatures/stbasketball.jpg" /> -->   
     <a href class="df-tacos">a tacotruck</a> &#x2619;
     <a href class="df-dog">dog</a> &#x2619;
+    <a href class="df-grass">grass</a> &#x2619;
     <a href class="df-remove">remove image</a> &#x2619;
     <a href class="reset">reset</a> &#x2619;
     <a href class="finder">Go to Finder</a>
@@ -159,7 +160,12 @@
           d3.event.preventDefault();
           addDesignPt('howler2.png');
       });
-      
+
+      d3.select('#doc_controls .df-grass').on('click', function (designFeature) {
+          d3.event.preventDefault();
+          addDesignPt('grass.jpg');
+      });
+
       d3.select('#doc_controls .df-basketball').on('click', function (designFeature) {
           d3.event.preventDefault();
           addDesignPt('stbasketball.jpg');
@@ -227,16 +233,12 @@
         }
 
   function exitCanvasEditor () {
-    (function () {
-      __('map').style.zIndex = 1
-    })()
+    __('map').style.zIndex = 1
     canvas.clear()
   }
 
   function useCanvasEditor () { 
-    (function () {
-      __('map').style.zIndex = -1
-    })()
+    __('map').style.zIndex = -1
     var fabricCanvas = __('fabcanv')
     if (!fabricCanvas.getAttribute("initialized")) {
       fabricCanvas.setAttribute('height', map.size().y)
@@ -257,6 +259,8 @@
           img.set({left:500, top:200})
           canvas.observe({"mouse:up" : function (e) {
             var trgt = e.memo.target
+            console.log('e')
+            console.log(e)
             // hardcoding 50 px top margin for the moment:
             //var upPt = map.pointLocation({x: e.memo.e.clientX, y: e.memo.e.clientY-50})
             var upPt = map.pointLocation({x: trgt.left, y: trgt.top-50})
