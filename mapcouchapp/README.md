@@ -4,9 +4,9 @@ GeoJSON document editor for the love of CouchDB and SVG.*
 
 *Please stand by.
 
-Try the canvas based symbol editor at branch canvassymbols or:
+See individual files for source copyright details (all mit/bsd-like)
 
-http://h.sfgeo.org/cedev/_design/maps/_show/editor
-
-svg imagery by @chromakode see embedded cc license for reuse
-public domain clip art http://colouringbook.org/tag/colouringbook-org/page/89/
+See redistribution.txt for symbol and image copyright details and attribution
+(they're also all freely redistributable, except maybe for the dog, that's by
+@dogpatchhowler, who didn't even mention that he had a hand in 
+http://apestronauts.com/)

@@ -47,6 +47,7 @@
         style='position:absolute;top:0px;right:50px;' 
         src="{{app_url}}/designfeatures/stbasketball.jpg" />    
     <a href class="df-tacos">a tacotruck</a> &#x2619;
+    <a href class="df-dog">dog</a> &#x2619;
     <a href class="df-remove">remove image</a> &#x2619;
     <a href class="reset">reset</a> &#x2619;
     <a href class="finder">Go to Finder</a>
@@ -154,6 +155,11 @@
           addDesignPt('tonayense.jpg');
       });
 
+      d3.select('#doc_controls .df-dog').on('click', function (designFeature) {
+          d3.event.preventDefault();
+          addDesignPt('howler2.png');
+      });
+      
       d3.select('#doc_controls .df-basketball').on('click', function (designFeature) {
           d3.event.preventDefault();
           addDesignPt('stbasketball.jpg');
@@ -280,9 +286,9 @@
               geom.coordinates = geom.coordinates[0];
               geom.coordinates.pop();
           } else if (1) {
-              geom = geom
+              //geom = geom
               // 
-              //geom = {type:"GeometryCollection", geometries:[geom]};
+              geom = {type:"GeometryCollection", geometries:[geom]};
           }
           featureCollection.features.push({type:"Feature", properties:null, geometry:geom});
           updateFeatures();

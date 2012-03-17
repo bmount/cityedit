@@ -1,5 +1,24 @@
 function (doc) {
+    // if user has created 1 or more symbols, find first one
+    // and emit that point, otherwise the first geojson coords
     if (doc['com.stemstorage.geodoc']) {
+      try {
+        for (var i = 0; i < doc.content.features.length; i++) {
+          try {
+            if (doc.content.features[i].geometry.type == "Point") {
+              if (doc.content.features[i].properties.userData) {
+                emit(doc.last_modified, [doc.title,
+                  doc.content.features[i].geometry.coordinates]);
+                return;
+              }
+            }
+          } catch (e) {
+            //
+          }
+        }
+      } catch (e) {
+        //
+      }
       var cp = doc.content.features[0].geometry,
       getCoordinatesArray = function (obj) {
         for (var k in cp) {

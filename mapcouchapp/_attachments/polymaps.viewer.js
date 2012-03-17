@@ -81,15 +81,16 @@ var po_metakaolin_viewer = function () {
                 "Point": function (pos, feat) {
                     //pos = feat.geometry
                     var el, 
-                      pt = posProj(pos)
+                      pt = posProj(pos),
+                      ang
                     if (typeof feat.properties.imageName === 'string') {
                       var udata = feat.properties.userData
                       el = po.svg("image")
                       el.setAttribute("x", pt.x)
                       el.setAttribute("y", pt.y)
                       //el.setAttribute("transform", "scale("+udata.scale
-                      el.setAttribute("width", udata.currentWidth)
-                      el.setAttribute("height", udata.currentHeight)
+                      el.setAttribute("width", udata.width * udata.scaleX)
+                      el.setAttribute("height", udata.height * udata.scaleY)
                       el.setAttributeNS("http://www.w3.org/1999/xlink", 'href', 
                           "/cityedit/_design/maps/designfeatures/"+feat.properties.imageName)
                       /*el.setAttribute("transform", "rotate("+(udata.theta * 180/π).toString() +
@@ -100,8 +101,9 @@ var po_metakaolin_viewer = function () {
                                                     udata.oCoords.bl.y)/2)
                                         .toString() + ")")
                       */
-                      
-                      el.setAttribute("transform", "rotate("+(udata.theta * 180/π).toString() +
+                      console.log(udata)
+                      ang = (typeof udata.theta == 'undefined') ? udata.angle : udata.theta * 180/π
+                      el.setAttribute("transform", "rotate("+(ang).toString() +
                                       " " + (pt.x).toString() +
                                       " " + (pt.y).toString() + ")")
 
