@@ -33,6 +33,7 @@ var po_metakaolin_editor = function () {
         DOUBLE_CLICK_MSEC = 300,
         MAX_CONNECTIONS = 2,        // prevent full-fledged node networks from springing up
         MARKER_RADIUS = 5,
+        SNIP_RADIUS = 7,
         HIGHLIGHT_WIDTH = 2,
         CONNECTION_WIDTH = 5;
 
@@ -372,6 +373,7 @@ var po_metakaolin_editor = function () {
                     if (_dist(c.ui.n1.position, pos) > 2*MARKER_RADIUS &&
                         _dist(c.ui.n2.position, pos) > 2*MARKER_RADIUS) c.ui.newVertex.setAttribute('stroke', "green");
                     else c.ui.newVertex.setAttribute('stroke', "red");
+                         c.ui.newVertex.setAttribute('r', SNIP_RADIUS);
                 }, false);
                 c.ui.el.removeEventListener('mouseout', c.ui.mouseoutListener, false);
                 c.ui.el.addEventListener('mouseout', c.ui.mouseoutListener = function (e) {
