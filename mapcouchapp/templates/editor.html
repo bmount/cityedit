@@ -242,6 +242,24 @@
             })
           }
         }
+  
+      function addStreetNames () {
+        if (featureCollection.features.length === 0) { 
+          d3.json("/stctrln/_design/tgs/_spatial/_list/geojson/geomsProps?bbox="+
+            map.extent()[0].lon + ',' +
+            map.extent()[0].lat + ',' +
+            map.extent()[1].lon + ',' +
+            map.extent()[1].lat, 
+            
+            function (rv) {
+              rv.features.forEach(function (street) {
+                featureCollection.features.push(street)
+                updateFeatures();
+              })
+            })
+          }
+        }
+
 
   function exitCanvasEditor () {
     __('map').style.zIndex = 1
