@@ -21,11 +21,12 @@
     
     .viewer { fill: grey; fill-opacity: 0.5; stroke: black; }
     .viewer polyline { fill: none !important; stroke-width: 3px; }
-    .viewer .hover { fill-opacity: 0.25; stroke-opacity: 0.75; }
+    .viewer .hover { fill-opacity: 0.25; stroke-opacity: 0.75; stroke-style: red; }
     .viewer .color0 { fill: red; stroke: grey; }
+      .color0:hover { fill: red; stroke: red; }
     .viewer .color1 { fill: green; stroke: grey; }
     .viewer .color2 { fill: blue; stroke: grey; }
-    .viewer .editing { fill-opacity: 0.05; stroke-opacity: 0.1; }
+    .viewer .editing { stroke: red; fill-opacity: 0.05; stroke-opacity: 0.1; }
   </style>
   
 </head>
@@ -51,9 +52,10 @@
     <a href class="df-tacos">a tacotruck</a> &#x2619;
     <a href class="df-dog">dog</a> &#x2619;
     <a href class="df-grass">grass</a> &#x2619;
+    <a href class="df-fwy">freeway removal</a> &#x2619;
     <a href class="df-remove">remove image</a> &#x2619;
     <a href class="reset">reset</a> &#x2619;
-    <a href class="finder">Go to Finder</a>
+    <a href class="finder">streetmap</a>
     <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
 </form>
     
@@ -102,7 +104,8 @@
                   d3.select(this).classed('hover', true);
               }).on("mouseout", function () {
                   d3.select(this).classed('hover', false);
-              }).classed('color' + (i % 3), true).classed('editing', f.data.geometry === editingGeometry);
+              }).classed('color0', true).classed('editing', f.data.geometry === editingGeometry);
+              //}).classed('color' + (i % 3), true).classed('editing', f.data.geometry === editingGeometry);
           });
       });
 
@@ -166,6 +169,12 @@
       d3.select('#doc_controls .df-grass').on('click', function (designFeature) {
           d3.event.preventDefault();
           addDesignPt('grass.jpg');
+      });
+
+      d3.select('#doc_controls .df-fwy').on('click', function (designFeature) {
+        d3.event.preventDefault();
+        var randidx = Math.floor(Math.random()*6)
+        addDesignPt('wall/wall' + randidx.toString() + '.jpg');
       });
 
       d3.select('#doc_controls .df-basketball').on('click', function (designFeature) {
