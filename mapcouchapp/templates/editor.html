@@ -288,11 +288,34 @@
     }
 
     function loadDefLines (f) {
-      var abcs
+      var unlikelyUnlikely
+      }
+
+    function blockUnitVectors (pts, idx) {
+      var rv = [0]
+          //coordrv = []
+      for (var i = 1; i < pts.length; i++) {
+        var dx = Math.abs(pts[i-1][0]-pts[i][0]),
+            dy = Math.abs(.83*(pts[i-1][1]-pts[i][1])),
+            l = Math.pow(Math.pow(dx, 2) + Math.pow(dy, 2), .5),
+            ang = Math.atan(dy/dx) * 180 / Math.PI
+            console.log('dx dy l ang')
+            //console.log([dx, dy, l, ang])
+        rv[0] ? null: rv[0] = ang
+        rv.push(l)
+        //coordrv.push([pts[i-1][0],pts[i][0]])
+        //coordrv.push([pts[i-1][1],pts[i][1]])
+        
+
+        }
+        console.log('maxl')
+      console.log(Math.max.apply(null, rv))  
+      return rv;
+      //console.log([rv, coordrv])  
     }
 
     function tileStreetLabels () {
-
+      // https://gist.github.com/900050
       map.add(streetLabels(viewBounds("stctrln")));
 
       // Custom layer implementation.
@@ -313,8 +336,13 @@
           for (var k = 0; k < json.features.length; k++) {
             console.log(json.features[k])
             var streetName = json.features[k].properties.properties.STREETNAME;
-            rv[streetName] = [ json.features[k].geometry.coordinates[1][0], json.features[k].geometry.coordinates[1][1]];
-            //rv.push({propid: [json.features[k].geometry.coordinates[0], json.features[k].geometry.coordinates[1]]})
+            var blockUvs = blockUnitVectors(json.features[k].geometry.coordinates)
+            for (var j = 0; j < json.features[k].geometry.coordinates.length; j+=2) {
+              var stid = 'stid-'+Math.floor(Math.random()*16777215).toString(16)
+              rv[stid] = [json.features[k].geometry.coordinates[j][0], json.features[k].geometry.coordinates[j][1], streetName, blockUvs[j]]; 
+              }
+              //console.log('about to block')
+            //blockUnitVectors(json.features[k].geometry.coordinates)  
           }
           tiler.points(d3.entries(rv))
           layer.reload();
@@ -341,7 +369,8 @@
               .attr("x", 15)
               .attr("dy", ".31em")
               .attr("font-family", "Monaco")
-              .text(function(d) { return d.key; });
+              .attr("transform", function (d) { return "rotate(-"+ d.value[3] +")"} )
+              .text(function(d) { var ang = d.value[3]; if (typeof ang != 'undefined') return d.value[2]; });
 
           function transform(d) {
             d = projection({lon: d.value[0], lat: d.value[1]});
