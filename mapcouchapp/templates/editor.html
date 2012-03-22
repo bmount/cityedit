@@ -8,10 +8,11 @@
     <script src="{{app_url}}/d3.min.js"></script>
     <script src="{{app_url}}/d3.geo.min.js"></script>
     <script src="{{app_url}}/fermata.min.js"></script>
-    <script src="{{app_url}}/polymaps-couchbb.min.js"></script>
+    <script src="{{app_url}}/polymaps-couchbb.js"></script>
     <script src="{{app_url}}/polymaps.editor.js"></script>
     <script src="{{app_url}}/polymaps.viewer.js"></script>
     <script src="{{app_url}}/fabric.all.min.js"></script>
+    <script src="{{app_url}}/d3.geo.tiler.js"></script>
 
   <style>
     #map { position: absolute; top: 50px; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; }
@@ -226,6 +227,15 @@
           symbolEditor(designFeature, geom)
       }
 
+      function viewBounds (baseUrl) {
+        var bounds = "/" + baseUrl + "/_design/tgs/_spatial/_list/geojson/geomsFull?bbox="+
+            map.extent()[0].lon + ',' +
+            map.extent()[0].lat + ',' +
+            map.extent()[1].lon + ',' +
+            map.extent()[1].lat
+        return bounds
+      }
+
       function addCurbs () {
         if (featureCollection.features.length === 0) { 
           d3.json("/curblines/_design/tgs/_spatial/_list/geojson/geoms?bbox="+
@@ -242,23 +252,111 @@
             })
           }
         }
-  
-      function addStreetNames () {
-        if (featureCollection.features.length === 0) { 
-          d3.json("/stctrln/_design/tgs/_spatial/_list/geojson/geomsProps?bbox="+
-            map.extent()[0].lon + ',' +
-            map.extent()[0].lat + ',' +
-            map.extent()[1].lon + ',' +
-            map.extent()[1].lat, 
-            
-            function (rv) {
-              rv.features.forEach(function (street) {
-                featureCollection.features.push(street)
-                updateFeatures();
-              })
-            })
+
+    //var stLabelCache = {"usable":false}
+    //var defLines = map.container().appendChild(po.svg("defs")) 
+    //defLines.setAttribute("class", "layer")
+    function loadStreetNames (f) {
+      for (var i = 0; i < f.features.length; i++) {
+        var feat = f.features[i],
+          props = feat.data.properties
+        //feat.element.setAttribute("stroke", "green")
+        //feat.element.setAttribute("fill", "none")
+        feat.element.setAttribute("class", "layer")
+        feat.element.setAttribute("id", "id-"+props._id)
+        defLines.appendChild(feat.element)
+        var labelLines = map.container().appendChild(po.svg("text"))
+        labelLines.setAttribute("class", "layer")
+        var txt = document.createElementNS("http://www.w3.org/1999/xlink", "textPath")
+        txt.appendChild(document.createTextNode(props.properties.STREETNAME))
+        txt.setAttribute("fill", "red")
+        var labelPath = labelLines.appendChild(txt)
+        //labelPath.setAttribute('xlink:href', '#'+props._id)
+        labelPath.setAttribute('font-size', 42)
+        labelPath.setAttributeNS("http://www.w3.org/1999/xlink", 'xlink:href', '#id-'+props._id)
+        //map.add(labelPath)
+        stLabelCache[props._id] = feat
+        feat.element.setAttribute("class", "stctrln")
+        console.log([props, feat])
+      }
+      for (var k in stLabelCache) {
+      }
+      stLabelCache.usable = true
+      console.log(defLines)
+      console.log('map')
+      console.log(map)
+    }
+
+    function loadDefLines (f) {
+      var abcs
+    }
+
+    function tileStreetLabels () {
+
+      map.add(streetLabels(viewBounds("stctrln")));
+
+      // Custom layer implementation.
+      function streetLabels(url) {
+
+        // Create the tiler, for organizing our points into tile boundaries.
+        var tiler = d3.geo.tiler()
+            .zoom(20)
+            .location(function(d) { return d.value; });
+
+        // Create the base layer object, using our tile factory.
+        var layer = po.layer(load);
+
+        // Load the data. When the data comes back, reload.
+        d3.json(url, function(json) {
+          var rv = {}
+          console.log(json)
+          for (var k = 0; k < json.features.length; k++) {
+            console.log(json.features[k])
+            var streetName = json.features[k].properties.properties.STREETNAME;
+            rv[streetName] = [ json.features[k].geometry.coordinates[1][0], json.features[k].geometry.coordinates[1][1]];
+            //rv.push({propid: [json.features[k].geometry.coordinates[0], json.features[k].geometry.coordinates[1]]})
+          }
+          tiler.points(d3.entries(rv))
+          layer.reload();
+        });
+
+        // Custom tile implementation.
+        function load(tile, projection) {
+          projection = projection(tile).locationPoint;
+
+          // Add an svg:g for each street.
+          var g = d3.select(tile.element = po.svg("g")).selectAll("g")
+              .data(tiler.tile(tile.column, tile.row, tile.zoom))
+            .enter().append("svg:g")
+              .attr("transform", transform);
+
+          // Add a circle.
+          g.append("svg:circle")
+              .style("fill", "none")
+              //.style("fill", d3.hsl(Math.random() * 360, 1, .5))
+              .attr("r", 4.5);
+
+          // Add a label.
+          g.append("svg:text")
+              .attr("x", 15)
+              .attr("dy", ".31em")
+              .attr("font-family", "Monaco")
+              .text(function(d) { return d.key; });
+
+          function transform(d) {
+            d = projection({lon: d.value[0], lat: d.value[1]});
+            return "translate(" + d.x + "," + d.y + ")";
           }
         }
+
+        return layer;
+      }
+    }
+//    function addStreetNames () {
+//      map.add(po.geoJsonLabel()
+//        .url("/stctrln/_design/tgs/_spatial/_list/geojson/geomsFull?bbox={G}")
+//        .on("load", loadStreetNames))
+//    }
 
 
   function exitCanvasEditor () {
@@ -387,6 +485,7 @@
       });
 
       document.addEventListener("DOMContentLoaded", addCurbs, false)
+      document.addEventListener("DOMContentLoaded", tileStreetLabels, false)
 
   </script>
 </body>
