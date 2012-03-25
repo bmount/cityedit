@@ -249,71 +249,20 @@
           }
         }
 
-/* Dropped in favor of d3.geo.tiler approach, but maybe useful in 
-   evaluating the path of street centerlines
-    function loadStreetNames (f) {
-      for (var i = 0; i < f.features.length; i++) {
-        var feat = f.features[i],
-          props = feat.data.properties
-        //feat.element.setAttribute("stroke", "green")
-        //feat.element.setAttribute("fill", "none")
-        feat.element.setAttribute("id", "id-"+props._id)
-        defLines.appendChild(feat.element)
-        var labelLines = map.container().appendChild(po.svg("text"))
-        labelLines.setAttribute("class", "layer")
-        var txt = document.createElementNS("http://www.w3.org/1999/xlink", "textPath")
-        txt.appendChild(document.createTextNode(props.properties.STREETNAME))
-        txt.setAttribute("fill", "red")
-        var labelPath = labelLines.appendChild(txt)
-        //labelPath.setAttribute('xlink:href', '#'+props._id)
-        labelPath.setAttribute('font-size', 42)
-        labelPath.setAttributeNS("http://www.w3.org/1999/xlink", 'xlink:href', '#id-'+props._id)
-        //map.add(labelPath)
-        stLabelCache[props._id] = feat
-        feat.element.setAttribute("class", "stctrln")
-        console.log([props, feat])
-      }
-      for (var k in stLabelCache) {
-      }
-      stLabelCache.usable = true
-      console.log(defLines)
-      console.log('map')
-      console.log(map)
-    }
-    
-    
 
-    function addStreetNames () {
-      map.add(po.geoJsonLabel()
-        .url("/stctrln/_design/tgs/_spatial/_list/geojson/geomsFull?bbox={G}")
-        .on("load", loadStreetNames))
-    }
-    
-    */
-
-    function blockUnitVectors (pts, idx) {
-      var rv = [0],
-          anglerv = []
-      for (var i = 1; i < pts.length; i++) {
-        var dx = Math.abs(pts[i-1][0]-pts[i][0]),
-            dy = 1.2*Math.abs(pts[i-1][1]-pts[i][1]), // TODO properly project
-            l = Math.pow(Math.pow(dx, 2) + Math.pow(dy, 2), .5),
-            ang = Math.atan(dy/dx) * 180 / Math.PI,
-            flip = (dx >= dy)? -1: 1,
-            angle = flip*ang
-        rv[0] ? null: rv[0] = ang
-        anglerv.push(angle)
-        //coordrv.push([pts[i-1][0],pts[i][0]])
-        //coordrv.push([pts[i-1][1],pts[i][1]])        
-      }
-      var maxrv = Math.max.apply(null, rv)
-      var maxidx = rv.indexOf(maxrv)  
-      return [maxidx, anglerv[maxidx]];
+    function blockUv (pts) {
+      var st = (pts[0][0] <= pts[1][0])? [0,1]: [1,0],
+        bl = [pts[st[0]], pts[st[1]]],
+        dx = bl[0][0] - bl[1][0],
+        dy = 1.2*(bl[0][1] - bl[1][1]), // TODO properly project
+        l = Math.pow(Math.pow(dx, 2) + Math.pow(dy, 2), .5),
+        angle = Math.atan(dy/dx) * 180 / Math.PI * (-1) 
+      return angle
     }
 
     function tileStreetLabels () {
       // https://gist.github.com/900050
-      map.add(streetLabels(viewBounds("stctrln")));
+      map.add(streetLabels(viewBounds("splitstreets")));
 
       // Custom layer implementation.
       function streetLabels(url) {
@@ -331,41 +280,14 @@
         var sameIntersection = {}
         d3.json(url, function(json) {
           var rv = {}
-          console.log(json)
           for (var k = 0; k < json.features.length; k++) {
-            console.log(json.features[k])
-            var streetName = json.features[k].properties.properties.STREETNAME;
-            var blockUvs = blockUnitVectors(json.features[k].geometry.coordinates)
-            var ptIdx = blockUvs[0]
-            var angVal = blockUvs[1]
+            var streetName = json.features[k].properties.properties.nm;
+            var angVal = blockUv(json.features[k].geometry.coordinates)
             var stid = 'stid-'+Math.floor(Math.random()*16777215).toString(16)
-            //for (var j = 0; j < json.features[k].geometry.coordinates.length; j+=2) {
-              
-            /* Issue here is that street centerlines include sort of non-traffic
-            lines connecting actual centerlines with undefined medians at big
-            intersections. Currently looks wrong on such streets, but ok for bigger
-            limiting to 1 record per .001 * .001 lon lat square works but may not show
-            the area of interest/view, some variant of that comparing to center point might
-            work
 
-            var cmpCoords = [json.features[k].geometry.coordinates[ptIdx][0].toFixed(3),
-            json.features[k].geometry.coordinates[ptIdx][1].toFixed(3)].toString()
-            if (typeof sameIntersection[streetName] == 'undefined') {
-                sameIntersection[streetName] = cmpCoords
-                rv[stid] = [json.features[k].geometry.coordinates[ptIdx][0], 
-                  json.features[k].geometry.coordinates[ptIdx][1], 
-                  streetName, angVal]; 
-            } else if (sameIntersection[streetName] == cmpCoords) {
-              console.log(json.features[k])
-              console.log('minifail')
-              continue
-            } else {   
-            */
-
-            rv[stid] = [json.features[k].geometry.coordinates[ptIdx][0], 
-              json.features[k].geometry.coordinates[ptIdx][1], 
+            rv[stid] = [json.features[k].geometry.coordinates[0][0], 
+              json.features[k].geometry.coordinates[0][1], 
               streetName, angVal]; 
-            //}
           }
           tiler.points(d3.entries(rv))
           sameIntersection = {}
@@ -390,9 +312,10 @@
 
           // Add a label. like house: "#f5f0d0" like lot bg: "#f5f0d0"
           g.append("svg:text")
-              .attr("x", 15)
-              .attr("dy", ".31em")
+              .attr("x", 40)
+              .attr("dy", ".12em")
               .attr("font-family", "Monaco")
+              .attr("font-size", "14px")
               .attr("fill", "#527F76")
               .attr("transform", function (d) { return "rotate("+ d.value[3] +")"} )
               .text(function(d) { var ang = d.value[3]; if (typeof ang != 'undefined') return d.value[2]; });
@@ -406,8 +329,6 @@
         return layer;
       }
     }
-
-
 
   function exitCanvasEditor () {
     __('map').style.zIndex = 1
