@@ -13,8 +13,11 @@
     <script src="{{app_url}}/polymaps.viewer.js"></script>
     <script src="{{app_url}}/fabric.all.min.js"></script>
     <script src="{{app_url}}/d3.geo.tiler.js"></script>
-
+    
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    
     <style>
+    #doc_controls { font-family: Lato; }
     #map { position: absolute; top: 50px; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; }
     #canvfeature { position: absolute; top: 50px; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
     #shape_controls, .editing_shape #doc_controls { display: none; }
@@ -41,9 +44,7 @@
     <a href="{{app_url}}/_list/summary/by_moddate_cp">←</a>
     <input name="title" placeholder="Document title" value="{{ title }}"></input>
     <button class="save" disabled>Save</button><br>
-    <a href class="add">⫀ Add Something</a> (Like what? Like 
-      <a href="http://missionlocal.org/2010/04/guerrero-park-blossoms-in-a-sea-of-concrete/" 
-        target="_blank">this</a>.) | (double click curbs/medians to edit) or add: &#x2619;
+    <a href class="add">⫀ Add a shape</a> &#x2619; Double click a street line to change it! Or add: &#x2619;
     <a href class="df-tree">a tree</a> &#x2619;
     <!-- Think about buttons etc 
     <img href class="df-basketball" height="50" width="50" 
@@ -56,7 +57,7 @@
     <a href class="df-fwy">freeway removal</a> &#x2619;
     <a href class="df-remove">remove image</a> &#x2619;
     <a href class="reset">reset</a> &#x2619;
-    <a href class="finder">streetmap</a>
+    <a href class="finder">exit to streetmap</a>
     <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
 </form>
     
@@ -183,11 +184,6 @@
           addDesignPt('stbasketball.jpg');
       });
       
-      d3.select('#doc_controls .add_existing_curbs').on('click', function (designFeature) {
-          d3.event.preventDefault();
-          addCurbs();
-      });
-      
       d3.select('#doc_controls .reset').on('click', function () {
         d3.event.preventDefault();
         window.location.reload(true)
@@ -253,11 +249,16 @@
     function blockUv (pts) {
       var st = (pts[0][0] <= pts[1][0])? [0,1]: [1,0],
         bl = [pts[st[0]], pts[st[1]]],
+        blr = [pts[st[1]], pts[st[0]]],
         dx = bl[0][0] - bl[1][0],
         dy = 1.2*(bl[0][1] - bl[1][1]), // TODO properly project
         l = Math.pow(Math.pow(dx, 2) + Math.pow(dy, 2), .5),
-        angle = Math.atan(dy/dx) * 180 / Math.PI * (-1) 
-      return angle
+        horizontal = (Math.abs(dx) > Math.abs(dy))? true: false,
+        angle = Math.atan(dy/dx) * 180 / Math.PI * (-1)
+        if (l < .0012) { // Add labels on opposite ends if big street seg
+          blr = false
+        } 
+      return [angle, bl, blr, horizontal]
     }
 
     function tileStreetLabels () {
@@ -281,13 +282,24 @@
         d3.json(url, function(json) {
           var rv = {}
           for (var k = 0; k < json.features.length; k++) {
-            var streetName = json.features[k].properties.properties.nm;
-            var angVal = blockUv(json.features[k].geometry.coordinates)
-            var stid = 'stid-'+Math.floor(Math.random()*16777215).toString(16)
-
-            rv[stid] = [json.features[k].geometry.coordinates[0][0], 
-              json.features[k].geometry.coordinates[0][1], 
-              streetName, angVal]; 
+            var corners = blockUv(json.features[k].geometry.coordinates),
+                streetName = json.features[k].properties.properties.nm,
+                xRule = (streetName.length > 18)? 200: 40, // shamelelssly trying to make demo work ;)
+                stid = 'stid-'+Math.floor(Math.random()*16777215).toString(16),
+                angVal = corners[0]
+            rv[stid] = [corners[1][0][0], corners[1][0][1],
+              streetName, angVal, xRule]; 
+              if (corners[2]) {
+                if (!(corners[3])) {
+                  angVal += 180
+                } else {
+                  xRule -= 200
+                }
+                rv[stid+'-reverse'] = [corners[2][0][0], corners[2][0][1],
+                streetName, angVal, xRule];
+                console.log('reversed')
+                console.log([rv[stid+'-reverse'], corners])
+              }
           }
           tiler.points(d3.entries(rv))
           sameIntersection = {}
@@ -310,12 +322,13 @@
               //.style("fill", d3.hsl(Math.random() * 360, 1, .5))
               .attr("r", 4.5);
 
-          // Add a label. like house: "#f5f0d0" like lot bg: "#f5f0d0"
+          // label. color like house: "#f5f0d0" like lot bg: "#f5f0d0"
           g.append("svg:text")
-              .attr("x", 40)
+              .attr("x", function (d) { return d.value[4] })
+              //.attr("y", 15)
               .attr("dy", ".12em")
-              .attr("font-family", "Monaco")
-              .attr("font-size", "14px")
+              .attr("font-family", "Lato")
+              .attr("font-size", "12")
               .attr("fill", "#527F76")
               .attr("transform", function (d) { return "rotate("+ d.value[3] +")"} )
               .text(function(d) { var ang = d.value[3]; if (typeof ang != 'undefined') return d.value[2]; });
