@@ -18,8 +18,8 @@
     
     <style>
     #doc_controls { font-family: Lato; }
-    #map { position: absolute; top: 50px; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; }
-    #canvfeature { position: absolute; top: 50px; bottom: 1em; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
+    #map { position: absolute; top: 50px; bottom: 10px; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; width: 100%; }
+    #canvfeature { position: absolute; top: 50px; bottom: 10px; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
     #shape_controls, .editing_shape #doc_controls { display: none; }
     #doc_controls, .editing_shape #shape_controls { display: block; }
     
@@ -69,13 +69,18 @@
   </div>
 
   <div id="map"></div>
+<div id="attrib"></div>
 
   <script>
 
   var __ = function (id) {return document.getElementById(id)}
 
   var po = org.polymaps,
-      map = po.map().container(d3.select('#map').append("svg:svg").node()),
+    map = po.map().container(d3.select('#map')
+            .append("svg:svg")
+            .attr("height", "100%")
+            .attr("width", "100%")
+            .node()),
       h = window.location.hash
     map.add(po.interact());
     map.add(po.hash());
@@ -471,6 +476,7 @@
       document.addEventListener("DOMContentLoaded", addCurbs, false)
       document.addEventListener("DOMContentLoaded", tileStreetLabels, false)
 
-  </script>
+    </script>
+
 </body>
 </html>
