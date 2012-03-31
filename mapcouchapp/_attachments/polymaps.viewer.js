@@ -86,31 +86,16 @@ var po_metakaolin_viewer = function () {
                     if (typeof feat.properties.imageName === 'string') {
                       var udata = feat.properties.userData
                       el = po.svg("image")
-                      el.setAttribute("x", pt.x)
-                      el.setAttribute("y", pt.y)
-                      //el.setAttribute("transform", "scale("+udata.scale
+                      el.setAttribute("x", (pt.x-udata.scaleX*udata.width/2.0))
+                      el.setAttribute("y", (pt.y-udata.scaleY*udata.height/2.0))
                       el.setAttribute("width", udata.width * udata.scaleX)
                       el.setAttribute("height", udata.height * udata.scaleY)
-                      //el.setAttribute("width", udata.currentWidth)
-                      //el.setAttribute("height", udata.currentHeight)
                       el.setAttributeNS("http://www.w3.org/1999/xlink", 'href', 
                           "/cityedit/_design/maps/designfeatures/"+feat.properties.imageName)
-                      /*el.setAttribute("transform", "rotate("+(udata.theta * 180/π).toString() +
-                                      " " + (pt.x + ( udata.oCoords.tr.x - 
-                                                    udata.oCoords.bl.x )/2)
-                                            .toString() +
-                                      " " + (pt.y + ( udata.oCoords.tr.y -
-                                                    udata.oCoords.bl.y)/2)
-                                        .toString() + ")")
-                      */
-                      console.log('udata')
-                      console.log(udata)
                       ang = (typeof udata.theta == 'undefined') ? udata.angle : udata.theta * 180/π
-                      el.setAttribute("transform", "rotate("+(ang).toString() +
+                     el.setAttribute("transform", "rotate("+(ang).toString() +
                                       " " + (pt.x).toString() +
-                                      " " + (pt.y).toString() + ")")
-
-                    //rotationCenter(udata, pt)
+                                      " " + (pt.y).toString() + ")")		
                     } else {
                       el = po.svg("circle"),
                       el.setAttribute('cx', pt.x), el.setAttribute('cy', pt.y);

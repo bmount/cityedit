@@ -375,13 +375,9 @@
           img.set({left:500, top:200})
           canvas.observe({"mouse:up" : function (e) {
             var trgt = e.memo.target
-            console.log('e')
-            console.log(e)
-            // hardcoding 50 px top margin for the moment:
-            //var upPt = map.pointLocation({x: e.memo.e.clientX, y: e.memo.e.clientY-50})
-            var upPt = map.pointLocation({x: trgt.left, y: trgt.top-50})
+						var upPt = map.pointLocation({x: trgt.left, y: trgt.top})
             editingSymbol.geometry.coordinates = [upPt.lon, upPt.lat]
-            editingSymbol.properties.userData = e.memo.target
+            editingSymbol.properties.userData = trgt
             }
           })
           canvas.add(img)
