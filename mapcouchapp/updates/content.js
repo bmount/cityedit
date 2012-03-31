@@ -15,9 +15,11 @@ function (doc, req) {
     doc.content = JSON.parse(req.form.content);
     
     var appURL = '/' + req.info.db_name + '/' + ddoc._id,
-        docURL = appURL + '/_show/editor/' + doc._id;
-    return [doc, { 
-        headers: {'Location': docURL}, code: 303,
-        body: fs.to_html(ddoc.templates.update_content, {docURL:docURL})
+      //  docURL = appURL + '/_show/editor/' + doc._id;
+      docListUrl = appUrl + ' _list/summary/by_moddate_cp'    
+      return [doc, { 
+     //   headers: {'Location': docURL}, code: 303,
+        headers: {'Location': docListURL}, code: 302,
+       // body: fs.to_html(ddoc.templates.update_content, {docURL:docURL})
     }];
 }
