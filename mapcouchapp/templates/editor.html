@@ -32,7 +32,7 @@
     .viewer .color2 { fill: blue; stroke: grey; }
     .viewer .editing { stroke: red; fill-opacity: 0.05; stroke-opacity: 0.1; }
   </style>
-
+  
 </head>
 
 <body>
@@ -55,9 +55,9 @@
     <a href class="df-dog">dog</a> &#x2619;
     <a href class="df-grass">grass</a> &#x2619;
     <a href class="df-fwy">freeway removal</a> &#x2619;
-    <a href class="df-remove">remove image</a> &#x2619;
     <a href class="reset">reset</a> &#x2619;
-    <a href class="finder">exit to streetmap</a>
+		<a href class="finder">exit to streetmap</a> &#x2619;
+		<a href class="exporter">export geojson</a>
     <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
 </form>
     
@@ -65,8 +65,9 @@
     <a href class="cancel">← Cancel</a>
     <!--<a href>Fields...</a>-->
     <button class="save" type="button">Done</button><br>
-    <a href class="delete">∉ Remove shape</a>
-  </div>
+    <a href class="delete">∉ Remove shape or existing symbol</a> &#x2619;
+		<a href class="df-remove">(or here for an unsaved image)</a>
+	</div>
 
   <div id="map"></div>
 <div id="attrib"></div>
@@ -86,7 +87,7 @@
     map.add(po.hash());
     map.add(po.grid());
     map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
-    map.zoomRange([20, 20])
+    map.zoomRange([20])
 
     // TODO: properly attribute whichever layer is used
     // if you're using tiles replicated from this app, attribution is optional
@@ -130,7 +131,9 @@
       }
 
       // default location is san jose ave/guerrero ave pavement-to-park project, San Francisco
-      map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
+			map.center({lat: window.location.hash 
+					? window.location.hash.split('/')[1]: 37.7455, lon: window.location.hash 
+					? window.location.hash.split('/')[2]: -122.42203}).zoom(20);
       map.zoomRange([20, 20])
 
       if (featureCollection.features.length) {
@@ -144,7 +147,7 @@
           addFeature();
       });
       
-      d3.select('#doc_controls .df-remove').on('click', function (designFeature) {
+      d3.select('#shape_controls .df-remove').on('click', function (designFeature) {
           d3.event.preventDefault();
           canvas.remove(canvas.getActiveObject());
       });
@@ -199,10 +202,24 @@
         var zOut = window.location.hash
         zOut = zOut.replace("#20.00/", "#18/")
         window.location = "{{app_url}}/finder.html"+zOut
-      });
+			});
+
+			d3.select('#doc_controls .exporter').on('click', function () {
+				d3.event.preventDefault();
+				var locGeodoc = window.location.href
+				if (locGeodoc.indexOf('geodoc') === -1) {
+					alert("Save your design before exporting")
+					return;
+					} else {
+					window.location = "/cityedit/{{id}}"
+			}
+		})
+
 
       d3.select('input[name=title]').on('change', function () {
-          d3.select('#doc_controls .save').property('disabled', false);
+				d3.select('#doc_controls .save').property('disabled', false);
+				var currentLoc = d3.select('#doc_controls')
+					.attr('action', function () { return "{{app_url}}/_update/content/{{id}}?loc="+window.location.hash.toString().replace("#", '') })
       });
 
       d3.select('#doc_controls').on('submit', function () {
