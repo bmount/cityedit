@@ -13,16 +13,16 @@
     <script src="{{app_url}}/polymaps.viewer.js"></script>
     <script src="{{app_url}}/fabric.all.min.js"></script>
     <script src="{{app_url}}/d3.geo.tiler.js"></script>
-    
+
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    
+
     <style>
     #doc_controls { font-family: Lato; }
     #map { position: absolute; top: 50px; bottom: 10px; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; width: 100%; }
     #canvfeature { position: absolute; top: 50px; bottom: 10px; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
     #shape_controls, .editing_shape #doc_controls { display: none; }
     #doc_controls, .editing_shape #shape_controls { display: block; }
-    
+
     .viewer { fill: grey; fill-opacity: 0.5; stroke: black; }
     .viewer polyline { fill: none !important; stroke-width: 3px; }
     .viewer .hover { fill-opacity: 0.25; stroke-opacity: 0.75; stroke-style: red; }
@@ -32,7 +32,7 @@
     .viewer .color2 { fill: blue; stroke: grey; }
     .viewer .editing { stroke: red; fill-opacity: 0.05; stroke-opacity: 0.1; }
   </style>
-  
+
 </head>
 
 <body>
@@ -131,7 +131,7 @@
 
       // default location is san jose ave/guerrero ave pavement-to-park project, San Francisco
       map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
-      map.zoomRange([20])
+      map.zoomRange([20, 20])
 
       if (featureCollection.features.length) {
           //var bounds = d3.geo.bounds(featureCollection).map(function (c) { return {lon:c[0], lat:c[1]}; });
