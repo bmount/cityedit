@@ -91,7 +91,7 @@ var po_metakaolin_viewer = function () {
                       el.setAttribute("width", udata.width * udata.scaleX)
                       el.setAttribute("height", udata.height * udata.scaleY)
                       el.setAttributeNS("http://www.w3.org/1999/xlink", 'href', 
-                          "/cityedit/_design/maps/designfeatures/"+feat.properties.imageName)
+                          feat.properties.imageName)
                       ang = (typeof udata.theta == 'undefined') ? udata.angle : udata.theta * 180/π
                      el.setAttribute("transform", "rotate("+(ang).toString() +
                                       " " + (pt.x).toString() +

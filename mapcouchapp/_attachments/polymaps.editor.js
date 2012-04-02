@@ -28,6 +28,8 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+window.rulerObj = [0,0]
+
 var po_metakaolin_editor = function () {
     var po = org.polymaps,
         DOUBLE_CLICK_MSEC = 300,
@@ -424,6 +426,7 @@ var po_metakaolin_editor = function () {
             var pt1 = proj({lat:pos1[1], lon:pos1[0]}),
                 pt2 = proj({lat:pos2[1], lon:pos2[0]}),
                 dx = pt2.x - pt1.x, dy = pt2.y - pt1.y;
+            window.rulerObj = [(Math.sqrt(dx*dx + 1.44*dy*dy)), rulerObj[0]]
             return Math.sqrt(dx*dx + dy*dy);
         }
 

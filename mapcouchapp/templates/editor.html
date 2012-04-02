@@ -43,19 +43,24 @@
 <form id="doc_controls" action="{{app_url}}/_update/content/{{id}}" method="POST">
     <a href="{{app_url}}/_list/summary/by_moddate_cp">←</a>
     <input name="title" placeholder="Document title" value="{{ title }}"></input>
-    <button class="save" disabled>Save</button><br>
+    <button class="save" disabled>Save</button>
+    <input type="text" class="designImage" placeholder="add image url" value="" />
+    <input type="button" class="addDesignImage" value="Add" />
+ <!--   <input type="text" class="userDescription" placeholder="type it out" value="" />
+    <input type="button" class="addDescription" value="Type it out" />
+    -->
+    <br>
     <a href class="add">⫀ Add a shape</a> &#x2619; Double click a street line to change it! Or add: &#x2619;
     <a href class="df-tree">a tree</a> &#x2619;
     <!-- Think about buttons etc 
     <img href class="df-basketball" height="50" width="50" 
         style='position:absolute;top:0px;right:50px;' 
         src="{{app_url}}/designfeatures/stbasketball.jpg" /> 
+    <a href class="reset">reset</a> &#x2619;
     -->   
     <a href class="df-tacos">a tacotruck</a> &#x2619;
-    <a href class="df-dog">dog</a> &#x2619;
     <a href class="df-grass">grass</a> &#x2619;
-    <a href class="df-fwy">freeway removal</a> &#x2619;
-    <a href class="reset">reset</a> &#x2619;
+    <a href class="df-fwy">freeway removal</a> &#x2619; &#x2619;
 		<a href class="finder">exit to streetmap</a> &#x2619;
 		<a href class="exporter">export geojson</a>
     <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
@@ -66,7 +71,8 @@
     <!--<a href>Fields...</a>-->
     <button class="save" type="button">Done</button><br>
     <a href class="delete">∉ Remove shape or existing symbol</a> &#x2619;
-		<a href class="df-remove">(or here for an unsaved image)</a>
+    <a href class="df-remove">(or here for an unsaved image)</a>
+    <span id="ruler"></span>
 	</div>
 
   <div id="map"></div>
@@ -99,7 +105,7 @@
     var vector = po_metakaolin_viewer(),
       editor = po_metakaolin_editor();
     map.add(vector).add(editor);
-
+    
 
       d3.select(vector.container()).classed('viewer', true);
       vector.on('show', function (loadEvent) {
@@ -145,9 +151,9 @@
       d3.select('#doc_controls .add').on('click', function () {
           d3.event.preventDefault();
           addFeature();
-      });
+        });
       
-      d3.select('#shape_controls .df-remove').on('click', function (designFeature) {
+      d3.select('#shape_controls .df-remove').on('click', function () {
           d3.event.preventDefault();
           canvas.remove(canvas.getActiveObject());
       });
@@ -155,43 +161,32 @@
       // <a href class="df-save-symbol">save image</a>
       d3.select('#doc_controls .df-save-symbol').on('click', function () {
         d3.event.preventDefault();
-        groupFeatureUpdate = {type:"FeatureCollection", features:[]}
         if (!editingSymbol) return;
         featureCollection.features.push({type:"FeatureCollection", features:[editingSymbol]})
         updateFeatures();
       })
 
-      d3.select('#doc_controls .df-tree').on('click', function (designFeature) {
+      d3.select('#doc_controls .df-tree').on('click', function () {
           d3.event.preventDefault();
           addDesignPt('treeabove.png');
       });
 
-      d3.select('#doc_controls .df-tacos').on('click', function (designFeature) {
+      d3.select('#doc_controls .df-tacos').on('click', function () {
           d3.event.preventDefault();
           addDesignPt('tonayense.jpg');
       });
 
-      d3.select('#doc_controls .df-dog').on('click', function (designFeature) {
-          d3.event.preventDefault();
-          addDesignPt('howler2.png');
-      });
-
-      d3.select('#doc_controls .df-grass').on('click', function (designFeature) {
+      d3.select('#doc_controls .df-grass').on('click', function () {
           d3.event.preventDefault();
           addDesignPt('grass.jpg');
       });
 
-      d3.select('#doc_controls .df-fwy').on('click', function (designFeature) {
+      d3.select('#doc_controls .df-fwy').on('click', function () {
         d3.event.preventDefault();
         var randidx = Math.floor(Math.random()*6)
         addDesignPt('wall/wall' + randidx.toString() + '.jpg');
       });
 
-      d3.select('#doc_controls .df-basketball').on('click', function (designFeature) {
-          d3.event.preventDefault();
-          addDesignPt('stbasketball.jpg');
-      });
-      
       d3.select('#doc_controls .reset').on('click', function () {
         d3.event.preventDefault();
         window.location.reload(true)
@@ -211,7 +206,7 @@
 					alert("Save your design before exporting")
 					return;
 					} else {
-					window.location = "/cityedit/{{id}}"
+					window.location = "/cityrewritealpha/{{id}}"
 			}
 		})
 
@@ -238,11 +233,23 @@
           // I touch no one and no one touches me
           var geom = {type:"Feature", "geometry": {type:"Point", coordinates:[]}},
               center = map.center();
-          geom.properties = {}
+              geom.properties = {}
+          if (designFeature.indexOf('http') != 0) {
+              designFeature = "{{app_url}}/designfeatures/" + designFeature
+          }
           geom.properties.imageName = designFeature;
 
-          symbolEditor = useCanvasEditor()
+          var symbolEditor = useCanvasEditor()
           symbolEditor(designFeature, geom)
+      }
+
+      function addUserLabel (labelText) {
+        var geom = {type:"Feature", "geometry": {type:"Point", coordinates:[]}},
+              center = map.center();
+        geom.properties = {}
+        geom.properties.userLabel = labelText
+        var labelPlacer = useCanvasEditor()
+        labelPlacer(false, geom, labelText)
       }
 
       function viewBounds (baseUrl) {
@@ -319,8 +326,6 @@
                 }
                 rv[stid+'-reverse'] = [corners[2][0][0], corners[2][0][1],
                 streetName, angVal, xRule];
-                console.log('reversed')
-                console.log([rv[stid+'-reverse'], corners])
               }
           }
           tiler.points(d3.entries(rv))
@@ -383,10 +388,10 @@
       var canvas = window.canvas
     }
 
-    var symbolFeature = function (designFeature, geom) {
+    var symbolFeature = function (designFeature, geom, text) {
       editingSymbol = geom
       if (designFeature.match(/png$|jpg$|jpeg$/)) {
-        fabric.Image.fromURL('{{app_url}}/designfeatures/'+designFeature, function (img) {
+        fabric.Image.fromURL(designFeature, function (img) {
           d3.select(document.body).classed('editing_shape', true);
           img.scaleToWidth(120)
           img.set({left:500, top:200})
@@ -476,19 +481,31 @@
           if (typeof editingSymbol === 'object') {
             saveEdits(editingSymbol)
             editingSymbol = false
+            canvas.clear()
           } else { 
             saveEdits() 
           }
       });
+      
+      d3.select("#doc_controls .addDesignImage").on("click", function () {
+        var designUrl = d3.select("#doc_controls .designImage")[0][0].value
+        addDesignPt(designUrl)
+      })
 
       d3.select('#shape_controls .delete').on('click', function () {
           d3.event.preventDefault();
           deleteEdited();
       });
 
+      function rulerView () {
+        var rlr = document.querySelector("#ruler")
+        rlr.textContent = (JSON.stringify(rulerObj))
+        return
+      }
+
       document.addEventListener("DOMContentLoaded", addCurbs, false)
       document.addEventListener("DOMContentLoaded", tileStreetLabels, false)
-
+      document.addEventListener("mousemove", rulerView, false)
     </script>
 
 </body>
