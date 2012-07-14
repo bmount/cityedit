@@ -5,10 +5,9 @@
     <meta charset="utf-8">
     <title>cityedit "{{ title }}"</title>
 
-    <script src="{{app_url}}/d3.min.js"></script>
-    <script src="{{app_url}}/d3.geo.min.js"></script>
+    <script src="{{app_url}}/d3.v2.min.js"></script>
     <script src="{{app_url}}/fermata.min.js"></script>
-    <script src="{{app_url}}/polymaps-couchbb.js"></script>
+    <script src="{{app_url}}/polymaps-couchbb.min.js"></script>
     <script src="{{app_url}}/polymaps.editor.js"></script>
     <script src="{{app_url}}/polymaps.viewer.js"></script>
     <script src="{{app_url}}/fabric.all.min.js"></script>
@@ -76,7 +75,7 @@
 	</div>
 
   <div id="map"></div>
-<div id="attrib"></div>
+<div id="attrib">Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.</div>
 
   <script>
 
@@ -99,7 +98,7 @@
     // if you're using tiles replicated from this app, attribution is optional
     map.add(po.image()
       //.url(po.url("http://{S}.sfgeo.org/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
-      .url(po.url("/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
+      //.url(po.url("/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
       //  .hosts([1, 2, 3, 4])));
 
     var vector = po_metakaolin_viewer(),
