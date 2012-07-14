@@ -18,17 +18,25 @@
     <style>
     #doc_controls { font-family: Lato; }
     #map { position: absolute; top: 50px; bottom: 10px; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; width: 100%; }
+    #attribution { position: absolute; bottom: 0px; left: 15px; z-index: 6;}
     #canvfeature { position: absolute; top: 50px; bottom: 10px; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
     #shape_controls, .editing_shape #doc_controls { display: none; }
     #doc_controls, .editing_shape #shape_controls { display: block; }
 
     .viewer { fill: grey; fill-opacity: 0.5; stroke: black; }
-    .viewer polyline { fill: none !important; stroke-width: 3px; }
+    .viewer polyline { fill: none !important; stroke-width: 6px; }
     .viewer .hover { fill-opacity: 0.25; stroke-opacity: 0.75; stroke-style: red; }
-    .viewer .color0 { fill: red; stroke: grey; }
-      .color0:hover { fill: red; stroke: red; }
-    .viewer .color1 { fill: green; stroke: grey; }
-    .viewer .color2 { fill: blue; stroke: grey; }
+    .viewer .color0 { fill: rgb(144, 152, 159); stroke: rgb(144, 152, 159); }
+      .color0:hover { fill: purple; stroke: red; }
+    .viewer .color1 { fill: rgb(237, 28, 36); stroke: rgb(237, 28, 36); }
+    .viewer .color2 { fill: rgb(255, 232, 0); stroke: rgb(255, 232, 0); }
+    .viewer .color3 { fill: rgb(0, 172, 237); stroke: rgb(0, 172, 237); }
+    .viewer .color4 { fill: rgb(77, 184, 72); stroke: rgb(77, 184, 72); }
+    .viewer .color5 { fill: rgb(1, 134, 60); stroke: rgb(1, 134, 60); }
+    .viewer .color6 { fill: rgb(247, 139, 168) ; stroke: rgb(247, 139, 168); }
+    .viewer .color7 { fill: rgb(144, 152, 159); stroke: rgb(144, 152, 159); }
+    .viewer .color8 { fill: blue; stroke: grey; }
+    .viewer .color9 { fill: blue; stroke: grey; }
     .viewer .editing { stroke: red; fill-opacity: 0.05; stroke-opacity: 0.1; }
   </style>
   
@@ -49,8 +57,8 @@
     <input type="button" class="addDescription" value="Type it out" />
     -->
     <br>
-    <a href class="add">⫀ Add a shape</a> &#x2619; Double click a street line to change it! Or add: &#x2619;
-    <a href class="df-tree">a tree</a> &#x2619;
+    <a href class="add">⫀ Add a rail line</a> &#x2619; Double click a street line to change it! Or add: &#x2619;
+    <a href class="bartstation">a BART station</a> &#x2619;
     <!-- Think about buttons etc 
     <img href class="df-basketball" height="50" width="50" 
         style='position:absolute;top:0px;right:50px;' 
@@ -58,7 +66,6 @@
     <a href class="reset">reset</a> &#x2619;
     -->   
     <a href class="df-tacos">a tacotruck</a> &#x2619;
-    <a href class="df-grass">grass</a> &#x2619;
     <a href class="df-fwy">freeway removal</a> &#x2619; &#x2619;
 		<a href class="finder">exit to streetmap</a> &#x2619;
 		<a href class="exporter">export geojson</a>
@@ -74,9 +81,9 @@
     <span id="ruler"></span>
 	</div>
 
-  <div id="map"></div>
-<div id="attrib">Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.</div>
-
+  <div id="map">
+<div id="attribution">Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.</div>
+</div>
   <script>
 
   var __ = function (id) {return document.getElementById(id)}
@@ -91,12 +98,13 @@
     map.add(po.interact());
     map.add(po.hash());
     map.add(po.grid());
-    map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203}).zoom(20);
-    map.zoomRange([20, 20])
+    map.center({lat: h ? h.split('/')[1]: 37.7455, lon: h ? h.split('/')[2] : -122.42203});
+    //map.zoomRange([20, 20])
 
     // TODO: properly attribute whichever layer is used
     // if you're using tiles replicated from this app, attribution is optional
     map.add(po.image()
+      .url(po.url("http://tile.stamen.com/toner-lite/{Z}/{X}/{Y}.jpg")))
       //.url(po.url("http://{S}.sfgeo.org/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")
       //.url(po.url("/sesf/tile-{Z}-{X}-{Y}/tile-{Z}-{X}-{Y}.png")));
       //  .hosts([1, 2, 3, 4])));
@@ -117,8 +125,8 @@
                   d3.select(this).classed('hover', true);
               }).on("mouseout", function () {
                   d3.select(this).classed('hover', false);
-              }).classed('color0', true).classed('editing', f.data.geometry === editingGeometry);
-              //}).classed('color' + (i % 3), true).classed('editing', f.data.geometry === editingGeometry);
+              //}).classed('color0', true).classed('editing', f.data.geometry === editingGeometry);
+              }).classed('color' + (i % 8), true).classed('editing', f.data.geometry === editingGeometry);
           });
       });
 
@@ -139,7 +147,7 @@
 			map.center({lat: window.location.hash 
 					? window.location.hash.split('/')[1]: 37.7455, lon: window.location.hash 
 					? window.location.hash.split('/')[2]: -122.42203}).zoom(20);
-      map.zoomRange([20, 20])
+      //map.zoomRange([20, 20])
 
       if (featureCollection.features.length) {
           //var bounds = d3.geo.bounds(featureCollection).map(function (c) { return {lon:c[0], lat:c[1]}; });
@@ -165,9 +173,9 @@
         updateFeatures();
       })
 
-      d3.select('#doc_controls .df-tree').on('click', function () {
+      d3.select('#doc_controls .bartstation').on('click', function () {
           d3.event.preventDefault();
-          addDesignPt('treeabove.png');
+          addDesignPt('http://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Bart-logo.svg/800px-Bart-logo.svg.png');
       });
 
       d3.select('#doc_controls .df-tacos').on('click', function () {
@@ -194,7 +202,7 @@
       d3.select('#doc_controls .finder').on('click', function () {
         d3.event.preventDefault();
         var zOut = window.location.hash
-        zOut = zOut.replace("#20.00/", "#18/")
+        //zOut = zOut.replace("#20.00/", "#18/")
         window.location = "{{app_url}}/finder.html"+zOut
 			});
 
@@ -298,7 +306,7 @@
 
         // Create the tiler, for organizing our points into tile boundaries.
         var tiler = d3.geo.tiler()
-            .zoom(20)
+            //.zoom(20)
             .location(function(d) { return d.value; });
 
         // Create the base layer object, using our tile factory.
@@ -410,14 +418,15 @@
   }
 
       function addFeature() {
-          var geom = {type:"Polygon", coordinates:[[]]},
-              size = 0.00005125,
+          var geom = {type:"LineString", coordinates:[]},
+              size = 0.02125,
               center = map.center();
-          geom.coordinates[0].push([center.lon - size, center.lat + size]);
-          geom.coordinates[0].push([center.lon + size, center.lat + size]);
-          geom.coordinates[0].push([center.lon + size, center.lat - size]);
-          geom.coordinates[0].push([center.lon - size, center.lat - size]);
-          geom.coordinates[0].push([center.lon - size, center.lat + size]);
+          geom.coordinates.push([center.lon - size, center.lat + size]);
+          geom.coordinates.push([center.lon + size, center.lat + size]);
+          geom.coordinates.push([center.lon + size, center.lat - size]);
+          //geom.coordinates.push([center.lon - size, center.lat - size]);
+          // coordinates[0] for polygon
+          //geom.coordinates[0].push([center.lon - size, center.lat + size]);
           if (0) {
               geom.type = (1) ? "LineString" : "MultiPoint";
               geom.coordinates = geom.coordinates[0];

@@ -36,8 +36,8 @@ var po_metakaolin_editor = function () {
         MAX_CONNECTIONS = 2,        // prevent full-fledged node networks from springing up
         MARKER_RADIUS = 5,
         SNIP_RADIUS = 7,
-        HIGHLIGHT_WIDTH = 2,
-        CONNECTION_WIDTH = 5;
+        HIGHLIGHT_WIDTH = 6,
+        CONNECTION_WIDTH = 6;
 
     var editor = po.layer(load);
     editor.tile(false);
