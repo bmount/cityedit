@@ -7,7 +7,7 @@
 
     <script src="{{app_url}}/d3.v2.min.js"></script>
     <script src="{{app_url}}/fermata.min.js"></script>
-    <script src="{{app_url}}/polymaps-couchbb.min.js"></script>
+    <script src="{{app_url}}/polymaps-cmu.min.js"></script>
     <script src="{{app_url}}/polymaps.editor.js"></script>
     <script src="{{app_url}}/polymaps.viewer.js"></script>
     <script src="{{app_url}}/fabric.all.min.js"></script>
@@ -16,9 +16,10 @@
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
 
     <style>
+    body { font-family: Lato; }
     #doc_controls { font-family: Lato; }
     #map { position: absolute; top: 50px; bottom: 10px; left: 0; right: 0; padding: 0; margin: 0; z-index: 1; width: 100%; }
-    #attribution { position: absolute; bottom: 0px; left: 15px; z-index: 6;}
+    #attribution { position: absolute; bottom: 0px; left: 15px; z-index: 6; font-family: Lato;} 
     #canvfeature { position: absolute; top: 50px; bottom: 10px; left: 0; right: 0; padding: 0; margin: 0; z-index: 0; }
     #shape_controls, .editing_shape #doc_controls { display: none; }
     #doc_controls, .editing_shape #shape_controls { display: block; }
@@ -57,7 +58,7 @@
     <input type="button" class="addDescription" value="Type it out" />
     -->
     <br>
-    <a href class="add">⫀ Add a rail line</a> &#x2619; Double click a street line to change it! Or add: &#x2619;
+    <a href class="add">⫀ Add a rail line</a> &#x2619; Double click a rail line to change it! Or add: &#x2619;
     <a href class="bartstation">a BART station</a> &#x2619;
     <!-- Think about buttons etc 
     <img href class="df-basketball" height="50" width="50" 
@@ -66,7 +67,6 @@
     <a href class="reset">reset</a> &#x2619;
     -->   
     <a href class="df-tacos">a tacotruck</a> &#x2619;
-    <a href class="df-fwy">freeway removal</a> &#x2619; &#x2619;
 		<a href class="finder">exit to streetmap</a> &#x2619;
 		<a href class="exporter">export geojson</a>
     <textarea id="geojson_content" name="content" hidden>{{ content }}</textarea>
@@ -146,7 +146,7 @@
       // default location is san jose ave/guerrero ave pavement-to-park project, San Francisco
 			map.center({lat: window.location.hash 
 					? window.location.hash.split('/')[1]: 37.7455, lon: window.location.hash 
-					? window.location.hash.split('/')[2]: -122.42203}).zoom(20);
+					? window.location.hash.split('/')[2]: -122.42203});
       //map.zoomRange([20, 20])
 
       if (featureCollection.features.length) {
@@ -213,7 +213,7 @@
 					alert("Save your design before exporting")
 					return;
 					} else {
-					window.location = "/cityrewritealpha/{{id}}"
+          window.location = "/myotm/{{id}}"
 			}
 		})
 
@@ -259,8 +259,12 @@
         labelPlacer(false, geom, labelText)
       }
 
-      function viewBounds (baseUrl) {
-        var bounds = "/" + baseUrl + "/_design/tgs/_spatial/_list/geojson/geomsFull?bbox="+
+      function viewBounds (baseUrl, ddocId, queryId) {
+        var queryId = queryId || 'tgs'
+          , ddocId = ddocId || 'geomsFull'
+        var bounds = "/" + baseUrl + "/_design/" + ddocId +
+            '/_spatial/_list/geojson/' + queryId +
+            '?bbox=' +
             map.extent()[0].lon + ',' +
             map.extent()[0].lat + ',' +
             map.extent()[1].lon + ',' +
@@ -268,9 +272,9 @@
         return bounds
       }
 
-      function addCurbs () {
+      function addExistingRail () {
         if (featureCollection.features.length === 0) { 
-          d3.json(viewBounds('curblines').replace('geomsFull', 'geoms'),
+          d3.json(viewBounds('myotm', 'myotm', 'raillines'),
             
             function (rv) {
               rv.features.forEach(function (curbline) {
@@ -511,7 +515,7 @@
         return
       }
 
-      document.addEventListener("DOMContentLoaded", addCurbs, false)
+      document.addEventListener("DOMContentLoaded", addExistingRail, false)
       document.addEventListener("DOMContentLoaded", tileStreetLabels, false)
       document.addEventListener("mousemove", rulerView, false)
     </script>
